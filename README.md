@@ -1,7 +1,7 @@
 # tacos
 <sup>(reverse `socat`)</sup>
 
-Spawn a tty in your reverse shell to automaticcaly make it interactive.
+Spawn a pty in your reverse shell to automaticcaly make it interactive.
 
 Equivalent of:
 ```shell
