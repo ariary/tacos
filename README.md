@@ -5,7 +5,7 @@
 <img src=https://github.com/ariary/tacos/blob/main/logo.png width=250>
 </div>
 
-Spawn a pty in your reverse shell to automaticaly make it interactive.
+Spawn a pty in your reverse shell to automaticaly make it interactive for the socat listener.
 
 Equivalent of:
 ```shell
