@@ -3,9 +3,11 @@
 
 <div align=center>
 <img src=https://github.com/ariary/tacos/blob/main/logo.png width=250>
+
+Spawn a pty in your reverse shell to <strong>automaticaly</strong> make it <strong>interactive</strong> for socat listener.
 </div>
 
-Spawn a pty in your reverse shell to automaticaly make it interactive for the socat listener.
+
 
 Equivalent of:
 ```shell
