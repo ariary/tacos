@@ -1,6 +1,10 @@
 # tacos 🌮 
 <sup>(reverse `socat`)</sup>
 
+<div align=center>
+<img src=https://github.com/ariary/tacos/blob/main/Tacos-logo.png width=150>
+</div>
+
 Spawn a pty in your reverse shell to automaticaly make it interactive.
 
 Equivalent of:
