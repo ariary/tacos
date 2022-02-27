@@ -13,6 +13,7 @@ SOCAT_TTY=$(tty)
 
 # space for no history, gitar shortcut
 echo "   $(gitar --dry-run -e GITAR_HOST)" > ${SOCAT_TTY}
+echo "   clear" > ${SOCAT_TTY}
 
 # Use socat to ship data between the unix socket and STDIO.
 exec socat file:${SOCAT_TTY},raw,echo=0 UNIX-CONNECT:${SOCKF}
