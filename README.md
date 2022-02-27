@@ -2,7 +2,7 @@
 <sup>(reverse `socat`)</sup>
 
 <div align=center>
-<img src=https://github.com/ariary/tacos/blob/main/Tacos-logo.png width=150>
+<img src=https://github.com/ariary/tacos/blob/main/logo.png width=250>
 </div>
 
 Spawn a pty in your reverse shell to automaticaly make it interactive.
