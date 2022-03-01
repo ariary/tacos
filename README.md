@@ -35,6 +35,21 @@ tmux
 # 💥
 ```
 
+## Install
+
+### Release
+```shell
+curl -lO -L -s https://github.com/ariary/tacos/releases/latest/download/tacos && chmod +x tacos
+```
+
+### From git
+need `go`:
+```shell
+git clone https://github.com/ariary/tacos.git && cd tacos
+make before.build
+make build.tacos
+```
+
 ## Alternative
 
 Alternatively, if target does not have `socat`:
