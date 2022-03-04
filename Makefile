@@ -3,3 +3,7 @@ before.build:
 
 build.tacos:
 	@echo "build in ${PWD}";go build cmd/tacos/tacos.go
+
+build.tacos.windows:
+	@echo "build in ${PWD}";GOOS=windows go build cmd/tacos/tacos_windows.go
+	 
