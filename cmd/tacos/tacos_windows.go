@@ -1,5 +1,6 @@
 //go:build windows
 // +build windows
+
 package main
 
 import (
@@ -14,7 +15,7 @@ func main() {
 	var detect bool
 	var shell string
 	flag.BoolVar(&detect, "detect", false, "Detect default shell to use it in reverse shell")
-	flag.StringVar(&shell, "shell", "/bin/bash", "shell to use for reverse shell") //default /bin/bash
+	flag.StringVar(&shell, "shell", "cmd.exe", "shell to use for reverse shell") //default /bin/bash
 	flag.Parse()
 
 	if detect {
