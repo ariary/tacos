@@ -47,7 +47,7 @@ need `go`:
 ```shell
 git clone https://github.com/ariary/tacos.git && cd tacos
 make before.build
-make build.tacos
+make build.tacos          # or make build.windows
 ```
 
 ## Alternative
