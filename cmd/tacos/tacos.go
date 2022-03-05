@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/ariary/tacos/pkg/tacos"
 )
@@ -14,6 +15,10 @@ func main() {
 	flag.BoolVar(&detect, "detect", false, "Detect default shell to use it in reverse shell")
 	flag.StringVar(&shell, "shell", "/bin/bash", "shell to use for reverse shell") //default /bin/bash
 	flag.Parse()
+
+	if runtime.GOOS == "windows" {
+		shell = "cmd.exe"
+	}
 
 	if detect {
 		shell = tacos.DetectDefaultShell()
