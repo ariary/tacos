@@ -1,0 +1,5 @@
+light-pty4all/server*
+light-pty4all/socat-listener.sh
+light-pty4all/socat-listener-windows.sh
+go.sum
+vendor
