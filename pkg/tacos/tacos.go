@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 
@@ -20,21 +21,28 @@ import (
 )
 
 //DetectDefaultShell: return the default shell
-func DetectDefaultShell() string {
+func DetectDefaultShell() (shell string) {
 	//Determine default shell
+
 	//macOS
-	//dscl . -read ~/ UserShell
-	//linux
-	//grep ^$(id -un): /etc/passwd | cut -d : -f 7-
-	command := "grep ^$(id -un): /etc/passwd | cut -d : -f 7-"
+	var command string
+	if runtime.GOOS == "darwin" { //mac os
+		command = "dscl . -read ~/ UserShell"
+	} else {
+		//linux
+		command = "grep ^$(id -un): /etc/passwd | cut -d : -f 7-"
+	}
+
 	defaultShell, err := exec.Command("sh", "-c", command).Output()
 	if err != nil {
 		log.Fatal(err)
-		fmt.Sprintf("Failed to retrieve default shell, use sh %s", command)
+		fmt.Sprintf("Failed to retrieve default shell, use sh: %s", command)
 		return "/bin/sh"
 	}
-	shell := string(defaultShell)
+
+	shell = string(defaultShell)
 	shell = strings.ReplaceAll(shell, "\n", "")
+
 	return shell
 }
 

