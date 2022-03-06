@@ -37,8 +37,10 @@ tmux
 ### With container
 
 ```shell
-docker --net host --rm -it taco [LISTENING_IP] [LISTENING_PORT]
-
+docker --net host --rm -it tacos [LISTENING_IP] [LISTENING_PORT]
+#alias tacos.container='docker --net host --rm -it tacos'
+#alias tacos.windows.container='docker --net host --rm -it tacos-windows'
+```
 ## Install
 
 ### Release
