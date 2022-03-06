@@ -17,8 +17,8 @@ COPY light-pty4all ./light-pty4all
 RUN go mod tidy
 RUN go mod download
 
-
-RUN go build ./cmd/tacos
+#CGO_ENABLED=0 for cross-compiling as binary will be used outside of the container
+RUN CGO_ENABLED=0 go build ./cmd/tacos  
 RUN mv tacos ./light-pty4all/
 
 RUN addgroup --system nonroot
