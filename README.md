@@ -6,7 +6,7 @@
 
 Spawn a pty in your reverse shell to <strong>automaticaly</strong> make it <strong>interactive</strong> for socat listener.
 
-<strong> Fast interactive reverse shell set-up [ 🐳 (container) ](#with-docker-recommended)
+<strong> Fast interactive reverse shell set-up [ 🐳 (container) ](#with-docker-recommended)</strong>
 
 <quote><b> All credit goes to <a href=https://github.com/laluka/pty4all>laluka</a> idea </b></quote>
 </div>
