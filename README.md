@@ -8,7 +8,7 @@ Spawn a pty in your reverse shell to <strong>automaticaly</strong> make it <stro
 
 <strong> Fast interactive reverse shell set-up [ 🐳 (container) ](#with-docker-recommended)</strong>
 
-<quote><b> All credit goes to <a href=https://github.com/laluka/pty4all>laluka</a> idea </b></quote>
+<sup><code><b> All credit goes to <a href=https://github.com/laluka/pty4all>laluka</a> idea </b></code></sup>
 </div>
 
 
