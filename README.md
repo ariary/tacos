@@ -58,6 +58,11 @@ tacos.container [LISTENING_ADDR] [LISTENING_PORT] # [OPTIONAL_TACOS_ARS]
 
 ## Install
 
+### Docker
+```shell
+docker pull ariary/tacos
+```
+
 ### Release
 ```shell
 curl -lO -L -s https://github.com/ariary/tacos/releases/latest/download/tacos && chmod +x tacos
