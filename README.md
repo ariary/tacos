@@ -55,7 +55,7 @@ tacos.container [LISTENING_ADDR] [LISTENING_PORT] # [OPTIONAL_TACOS_ARS]
 ```
 
 ***Notes about `tacos` container security:***
-> From a networking point of view, this is the same level of isolation as if the process were running directly on the host and not in a container. However, in all other ways, such as storage, process namespace, and user namespace, the process is isolated from the host.
+> From a networking point of view, this is the same level of isolation as if the processes were running directly on the host and not in a container. However, in all other ways, such as storage, process namespace, and user namespace, the process is isolated from the host.
 
 ## Install
 
