@@ -8,4 +8,7 @@ build.tacos.windows:
 	@echo "build in ${PWD}";GOOS=windows go build cmd/tacos/tacos.go
 	
 build.tacos.image:
-	docker build . -t ariary/tacos
+	docker build -f ./Dockerfiles/Dockerfile-tacos -t ariary/tacos ./Dockerfiles
+
+build.tacos-reverse.image:
+	docker build -f ./Dockerfiles/Dockerfile-reverse -t ariary/tacos-reverse .

