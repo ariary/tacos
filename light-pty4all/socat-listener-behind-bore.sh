@@ -78,7 +78,6 @@ tmux split-window -v "bore local 9292 --to bore.pub" #TODO: 9292 port as a flag
 printf "${TEAL}please enter bore.pub remote_port given? ${NC}"
 read BPORT
 BENDPOINT="bore.pub:${BPORT}"
-URL="http://${BENDPOINT}/${SECRET}"
 
 #gitar shortcut + launch gitar
 if [[ ! $WINDOWS ]]; then
@@ -89,7 +88,7 @@ fi
 echo "[+] launch gitar server"
 SECRET=$RANDOM
 tmux split-window -h "gitar -a https://${BENDPOINT} -f ${LPORT} --secret ${SECRET}"
-
+URL="http://${BENDPOINT}/${SECRET}"
 
 # put tacos in current directory
 PWD=$(pwd)
