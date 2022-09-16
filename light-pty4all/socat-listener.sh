@@ -89,11 +89,11 @@ fi
 # put tacos in current directory
 PWD=$(pwd)
 if [[ -f "./$BINARY" ]];then
-    echo "[*] ${BINARY} is already in ${PWD}"
+    echo "[+] ${BINARY} is already in ${PWD}"
 else
     RED='\033[1;31m'
     NC='\033[0m' # No Color
-    printf "${RED}[*] Put ${BINARY} in ${PWD} before launching reverse shell process${NC}\n"
+    printf "${RED}[+] Put ${BINARY} in ${PWD} before launching reverse shell process${NC}\n"
 
 fi
 
