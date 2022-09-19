@@ -1,5 +1,8 @@
-light-pty4all/server*
-light-pty4all/socat-listener.sh
-light-pty4all/socat-listener-windows.sh
+/light-pty4all/server*
+light-pty4all/socat-forker.sh
+light-pty4all/socat-forker-windows.sh
 go.sum
 vendor
+server*
+/tacos
+/sh

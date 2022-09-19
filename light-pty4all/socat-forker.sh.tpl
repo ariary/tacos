@@ -12,7 +12,7 @@ while test ! -e ${SOCKF}; do sleep 1; done
 SOCAT_TTY=$(tty)
 
 # space for no history, gitar shortcut
-echo "   $(gitar --dry-run -a GITAR_HOST -p GITAR_PORT)" > ${SOCAT_TTY}
+echo "   $(gitar --dry-run -e GITAR_HOST -p GITAR_PORT -s GITAR_SECRET)" > ${SOCAT_TTY}
 echo "   clear" > ${SOCAT_TTY}
 
 # Use socat to ship data between the unix socket and STDIO.
