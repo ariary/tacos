@@ -14,8 +14,8 @@ for i in "$@"; do
         WEBPORT="$2"
         shift;shift;
         ;;
-    --ngrok)
-        NGROK=true
+    --bore)
+        BORE=true
         shift;shift;
         ;;
     --windows|-w)
@@ -85,16 +85,7 @@ cp ${SCRIPT}.tpl ${SCRIPT}
 
 # Tunneling launching
 TUNNEL_ENDPOINT=""
-if [[ $NGROK ]]; then
-    ## launch ngrok
-    echo "[+] Launch bore tunneling"
-    tmux split-window -v "ngrok tcp ${WEBPORT}"
-    sleep 4 # wait for ngrok to start
-    NGROK_ENDPOINT_TCP=$(curl --silent --show-error http://127.0.0.1:4040/api/tunnels | jq -r ".tunnels[0].public_url")
-    # NGROK_ENDPOINT="http:$(echo $NGROK_ENDPOINT_TCP | cut -d ":" -f 2-3)"
-    NGROK_ENDPOINT="$(echo $NGROK_ENDPOINT_TCP | cut -d ':' -f 2-3 | cut -d '/' -f 3-)"
-    TUNNEL_ENDPOINT="${NGROK_ENDPOINT}"
-else 
+if [[ $BORE ]]; then
     ## launch bore
     TEAL='\033[1;36m'
     NC='\033[0m' # No Color
@@ -103,7 +94,16 @@ else
     printf "${TEAL}please enter bore.pub remote_port given? ${NC}"
     read BPORT
     BORE_ENDPOINT="bore.pub:${BPORT}"
-    NGROK_ENDPOINT_TCP = "${BORE_ENDPOINT}"
+    TUNNEL_ENDPOINT="${BORE_ENDPOINT}"
+else
+    ## launch ngrok
+    echo "[+] Launch ngrok tunneling"
+    tmux split-window -v "ngrok tcp ${WEBPORT}"
+    sleep 4 # wait for ngrok to start
+    NGROK_ENDPOINT_TCP=$(curl --silent --show-error http://127.0.0.1:4040/api/tunnels | jq -r ".tunnels[0].public_url")
+    # NGROK_ENDPOINT="http:$(echo $NGROK_ENDPOINT_TCP | cut -d ":" -f 2-3)"
+    NGROK_ENDPOINT="$(echo $NGROK_ENDPOINT_TCP | cut -d ':' -f 2-3 | cut -d '/' -f 3-)"
+    TUNNEL_ENDPOINT="${NGROK_ENDPOINT}"
 fi
 
 #launch gitar

