@@ -38,7 +38,7 @@ fi
 function trap_ctrlc ()
 {
     # perform cleanup here
-    echo "\n[+] perform clean up before exit"
+    echo -e "\n[+] perform clean up before exit"
     rm server.* 2>/dev/null
     rm sh 2>/dev/null
     rm tacos 2>/dev/null
