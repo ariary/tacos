@@ -109,6 +109,7 @@ fi
 #launch gitar
 echo "[+] launch gitar server"
 SECRET=$RANDOM
+echo "gitar -a https://${TUNNEL_ENDPOINT} -f ${LPORT} --secret ${SECRET}"
 tmux split-window -h "gitar -a https://${TUNNEL_ENDPOINT} -f ${LPORT} --secret ${SECRET}"   # https??
 URL="http://${TUNNEL_ENDPOINT}/${SECRET}"
 
