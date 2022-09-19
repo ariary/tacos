@@ -46,8 +46,10 @@ tmux
 Useful if target can't directly reach the attacker machine, but has internet access
 <br> On attacker machine, install <code>ngrok</code> or <code>bore</code> and launch your listener:
 <pre><code>
-./light-pty4all/socat-listener-behind-tunneling.sh --ngrok
+./light-pty4all/socat-listener-behind-tunneling.sh
 </code></pre>
+
+<i><b>N.B:</b></i> ngrok is more stable than bore for now
 </details>
 
 ### With docker (recommended)

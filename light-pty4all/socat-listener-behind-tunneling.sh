@@ -50,7 +50,7 @@ fi
 if [[ "$HELP" ]];
 then
     echo "Usage : $0 -p <socat_port>";
-    echo -e "\t--ngrok to perform tunneling usi,ng ngrok instead of bore"
+    echo -e "\t--bore to perform tunneling using bore instead of ngrok"
     echo -e "\t-w/--windows if target is a winows machine"
     echo -e "\t-p/--lport for the socat listener local port"
     echo -e "\t--web-port for the gitar lcoal port"
