@@ -51,7 +51,7 @@ function trap_ctrlc ()
 trap "trap_ctrlc" 2
 
 #### Set environment
-if [[ "$NGROK" ]] || [[ -z "$BORE" ]];
+if [[ "$NGROK" ]] || [[ "$BORE" ]];
 then
     cp $HOME/.tacos/light-pty4all/socat-listener-behind-tunneling.sh .
     
