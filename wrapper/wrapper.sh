@@ -11,6 +11,10 @@ for i in "$@"; do
         BORE=true
         shift;shift;
         ;;
+    --tmp)
+        TMP=true
+        shift;shift;
+        ;;
     --help|-h)
         HELP=true
         ;;
@@ -63,10 +67,20 @@ cp $HOME/.local/bin/tacos .
 
 if [[ "$NGROK" ]];
 then
-    ./socat-listener-behind-tunneling.sh
+    if [[ "$TMP" ]];
+    then
+        ./socat-listener-behind-tunneling.sh --tmp
+    else
+        ./socat-listener-behind-tunneling.sh --tmp
+    fi
 elif [[ "$BORE" ]];
 then
-   ./socat-listener-behind-tunneling.sh --bore
+    if [[ "$TMP" ]];
+    then
+        ./socat-listener-behind-tunneling.sh --bore --tmp
+    else
+        ./socat-listener-behind-tunneling.sh --bore --tmp
+    fi
 else
     ./socat-listener.sh --lhost $1 --lport $2 --gitar
 fi

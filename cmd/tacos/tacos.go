@@ -39,7 +39,7 @@ func main() {
 		fmt.Println("Usage: tacos [listener_url]:[port]")
 		os.Exit(1)
 	}
-	if setreuid {
+	if setreuid { //to fix: undefined: syscall.Setreuid for windows
 		euid := syscall.Geteuid()    //effective ID
 		syscall.Setreuid(euid, euid) //set real user id to eid, Print error if you want to debug
 	}
