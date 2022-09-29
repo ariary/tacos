@@ -1,6 +1,7 @@
 /light-pty4all/server*
-light-pty4all/socat-forker.sh
-light-pty4all/socat-forker-windows.sh
+/light-pty4all/socat-forker.sh
+/light-pty4all/socat-forker-windows.sh
+/light-pty4all/sh
 go.sum
 vendor
 server*

