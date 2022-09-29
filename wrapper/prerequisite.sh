@@ -13,7 +13,9 @@ mv light-pty4all $HOME/.tacos/
 cd .. && rm -rf tacos
 
 echo "[+] Installing gitar in ${HOME}/.local/bin"
-go install github.com/ariary/gitar@latest
+curl -s -lO -L https://github.com/ariary/gitar/releases/latest/download/gitar
+chmod +x gitar
+mv gitar $HOME/.local/bin/
 
 echo "[+] Installing tmux"
 sudo apt install tmux

