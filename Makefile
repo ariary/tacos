@@ -18,3 +18,6 @@ build.tacos.image:
 
 build.tacos-reverse.image:
 	docker build -f ./Dockerfiles/Dockerfile-reverse -t ariary/tacos-reverse .
+
+build.wrap:
+	nim -o:wrap/bin/wrap c wrap/src/wrap.nim
