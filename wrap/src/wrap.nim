@@ -183,7 +183,7 @@ proc Wrap(
         ## Inject prepared-command within reverse shell
         if tunnelEndpoint == "":
             if not windows and gitar:
-                echo "HHHERE"
+                styledEcho(fgGreen,"[+] ",fgDefault,"Load gitar shortcut in reverse shell")
                 discard execCmd(fmt"sed -i 's/GITAR_SECRET/{secret}/g' {script}")
                 discard execCmd(fmt"sed -i 's/GITAR_PORT/{webport}/g' {script}")
                 discard execCmd(fmt"sed -i 's/GITAR_HOST/{lhost}/g' {script}")
