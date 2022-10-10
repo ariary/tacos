@@ -7,3 +7,4 @@ vendor
 server*
 /tacos
 /sh
+wrap/bin/
