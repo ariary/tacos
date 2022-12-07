@@ -8,11 +8,12 @@ import terminal
 
 
 const TACOS_DIRPATH: string = getHomeDir()&".tacos/"
-const PTY4ALL: string = TACOS_DIRPATH&"light-pty4all/"
+# const PTY4ALL: string = TACOS_DIRPATH&"light-pty4all/"
+const PTY4ALL: string = TACOS_DIRPATH
 
 proc randomStr():string=
     randomize()
-    const lowerCaseAscii = 97..122
+    const lowerCaseAscii = 97..122 
     let myRandom = 8.newSeqWith(lowerCaseAscii.rand.char).join
     return myRandom
 
@@ -109,7 +110,7 @@ proc Wrap(
             script = fmt"{pwd}/{script}"
             setFilePermissions(script, {fpUserWrite, fpUserRead, fpUserExec})
         except OSError:
-            styledEcho(fgRed,"failed copying",PTY4ALL&script,"in",getCurrentDir()&"/"&script)
+            styledEcho(fgRed,"failed copying ",PTY4ALL&script,"in ",getCurrentDir()&"/"&script)
             quit(QuitFailure)
         
         ## Tunneling launching

@@ -110,7 +110,10 @@ need `nim`:
 
 ```shell
 git clone https://github.com/ariary/tacos.git && cd tacos
-make build.wrap 
+make build.wrap
+mkdir -p $HOME/.tacos
+mv light-pty4all/socat-forker-windows.sh.tpl $HOME/.tacos
+mv light-pty4all/socat-forker.sh.tpl $HOME/.tacos
 ```
 
 ## Alternatives
