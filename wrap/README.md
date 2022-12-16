@@ -1,6 +1,6 @@
 ## Set up...
 
-* Requirements: [`gum`](https://github.com/charmbracelet/gum#installation), `nim`, `go`, `git`, ètmux`
+* Requirements: [`gum`](https://github.com/charmbracelet/gum#installation), `nim`, `go`, `git`, `tmux`
 * Install all the stuff: `./install-wrap.sh`
 
 ## ... Have fun!
