@@ -8,7 +8,7 @@
 Just launch listener and take a seat 💺
 
 ```shell
-tacos.lister
+tacos.listener
 ```
 
 ## Additional notes
