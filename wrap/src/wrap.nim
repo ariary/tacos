@@ -173,7 +173,7 @@ proc Wrap(
             styledEcho(fgGreen,"[+] ",fgDefault,"Generate certificates 📜")
             removeFile("server.key")
             removeFile("server.crt")
-            let errOpenssl = execCmdEx("yes \"\" | openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 30 -out server.crt").exitCode
+            let errOpenssl = execCmdEx("yes \"\" | openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 30 -out server.crt  -subj \"/\"").exitCode
             if errOpenssl != 0:
                 styledEcho(fgRed,"failed creating certificates with openssl")
                 quit(QuitFailure)
@@ -219,7 +219,7 @@ proc Wrap(
                 gitarCmd = fmt"gitar -e {lhost} -p {webport} --secret {secret}"
                 url = fmt"http://{lhost}:{webport}/{secret}"
             else:
-                gitarCmd = fmt"gitar -a https://{tunnelEndpoint} -f {lport} --secret {secret}"
+                gitarCmd = fmt"gitar -a http://{tunnelEndpoint} -f {lport} --secret {secret}"
                 url = fmt"http://{tunnelEndpoint}/{secret}"
             discard execCmd(fmt"tmux split-window -h '{gitarCmd}'")
             # TODO: handle gitar shortcut (only possible without tunneling)
