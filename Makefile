@@ -7,6 +7,9 @@ build.tacos:
 build.tacos.static:
 	@echo "build in ${PWD}";CGO_ENABLED=0 go build cmd/tacos/tacos.go
 
+build.tacos.linux.amd64:
+	@echo "build in ${PWD}";GOOS=linux GOARCH=amd64 go build cmd/tacos/tacos.go
+
 build.tacos.32bit:
 	@echo "build in ${PWD}";GOARCH=386 go build cmd/tacos/tacos.go
 
