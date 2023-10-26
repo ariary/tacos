@@ -85,35 +85,14 @@ mount /dev/sda1 /mnt/hostfs
 </details>
 
 
-## Install
-### tacos
-#### Docker
-```shell
-docker pull ariary/tacos
+## Easy install
+
+* Requirements: go, git, tmux *(and ngrok, bore)*
+* Install all the stuff: `./install-all-in-one.sh`
+
+You're now good to go !:
 ```
-
-#### Release
-```shell
-curl -lO -L -s https://github.com/ariary/tacos/releases/latest/download/tacos && chmod +x tacos
-```
-
-#### From git
-need `go`:
-```shell
-git clone https://github.com/ariary/tacos.git && cd tacos
-make before.build
-make build.tacos          # or make build.tacos.windows
-```
-
-### wrap
-need `nim`:
-
-```shell
-git clone https://github.com/ariary/tacos.git && cd tacos
-make build.wrap
-mkdir -p $HOME/.tacos
-mv light-pty4all/socat-forker-windows.sh.tpl $HOME/.tacos
-mv light-pty4all/socat-forker.sh.tpl $HOME/.tacos
+tacos.listener
 ```
 
 ## Alternatives
