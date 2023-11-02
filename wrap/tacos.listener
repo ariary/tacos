@@ -6,7 +6,7 @@ EXPOSITION=$(gum choose "use IP" "tunnel: ngrok" "tunnel: bore")
 if [ "$EXPOSITION" = "use IP" ]; then
     IP=$(gum input --placeholder "Enter Attacker IP")
     FLAGS="${FLAGS} --lhost ${IP}"
-elif [ "$IP_CHOICE" = "tunnel: bore" ]; then
+elif [ "$EXPOSITION" = "tunnel: bore" ]; then
     FLAGS="${FLAGS} -b"
 else
     FLAGS="${FLAGS} -n"
