@@ -28,6 +28,9 @@ build.tacosdll:
 	go build -buildmode=c-shared -ldflags="-w -s -H=windowsgui -X 'main.Remote=$(REMOTE)'" \
 	-o tacos.dll ./cmd/tacosdll/tacosdll.go
 
+test:
+	go test -race -count=1 ./...
+
 vet:
 	go vet ./...
 

