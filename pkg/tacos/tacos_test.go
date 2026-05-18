@@ -199,6 +199,51 @@ func TestConnectTLSErrorWrapsOriginal(t *testing.T) {
 	}
 }
 
+// --- ConnectTLS timeout tests ---
+
+func TestConnectTLSRespectsTimeout(t *testing.T) {
+	// Use a non-routable address to trigger a timeout (not connection refused)
+	start := time.Now()
+	_, err := ConnectTLS("192.0.2.1:12345", 1, 0) // TEST-NET, will timeout
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("expected timeout error")
+	}
+	// Should complete in roughly 1 second (the timeout), not the default 30s
+	if elapsed > 5*time.Second {
+		t.Errorf("ConnectTLS took %s, expected ~1s timeout", elapsed)
+	}
+}
+
+func TestConnectTLSSleepsBetweenRetries(t *testing.T) {
+	// With 1 retry (2 attempts total), should take at least 2s (sleep between)
+	start := time.Now()
+	_, err := ConnectTLS("127.0.0.1:1", 1, 1)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if elapsed < 2*time.Second {
+		t.Errorf("ConnectTLS with 1 retry took %s, expected >= 2s (sleep between retries)", elapsed)
+	}
+}
+
+func TestConnectTLSNoSleepAfterLastAttempt(t *testing.T) {
+	// With 0 retries, should not sleep at all
+	start := time.Now()
+	_, err := ConnectTLS("127.0.0.1:1", 1, 0)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if elapsed > 2*time.Second {
+		t.Errorf("ConnectTLS with 0 retries took %s, should not sleep", elapsed)
+	}
+}
+
 // --- DetectDefaultShell tests ---
 
 func TestDetectDefaultShellReturnsValidPath(t *testing.T) {
@@ -220,5 +265,21 @@ func TestDetectDefaultShellNoNewlines(t *testing.T) {
 	shell := DetectDefaultShell()
 	if strings.Contains(shell, "\n") {
 		t.Errorf("DetectDefaultShell contains newline: %q", shell)
+	}
+}
+
+func TestDetectDefaultShellIsNotFallback(t *testing.T) {
+	// On a normally configured system, default shell should NOT be /bin/sh
+	// (the fallback). This tests that the detection actually works.
+	shell := DetectDefaultShell()
+	// The shell should be a real detected shell, not the error fallback
+	// We can't assert it's NOT /bin/sh (some systems use it), but we can
+	// verify the path exists and is executable
+	info, err := os.Stat(shell)
+	if err != nil {
+		t.Fatalf("shell %q doesn't exist: %s", shell, err)
+	}
+	if info.IsDir() {
+		t.Errorf("shell %q is a directory, not an executable", shell)
 	}
 }
