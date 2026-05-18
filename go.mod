@@ -1,6 +1,6 @@
 module github.com/ariary/tacos
 
-go 1.17
+go 1.22
 
 require (
 	github.com/ariary/go-utils v1.0.0

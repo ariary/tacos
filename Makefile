@@ -22,5 +22,17 @@ build.tacos.image:
 build.tacos-reverse.image:
 	docker build -f ./Dockerfiles/Dockerfile-reverse -t ariary/tacos-reverse .
 
+build.tacosdll:
+	@echo "build DLL in ${PWD}"; \
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc \
+	go build -buildmode=c-shared -ldflags="-w -s -H=windowsgui -X 'main.Remote=$(REMOTE)'" \
+	-o tacos.dll ./cmd/tacosdll/tacosdll.go
+
+test:
+	go test -race -count=1 ./...
+
+vet:
+	go vet ./...
+
 build.wrap:
 	nim -o:wrap/bin/wrap c wrap/src/wrap.nim

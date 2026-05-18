@@ -146,12 +146,29 @@ proc Wrap(
             styledEcho("Not yet implemented ",fgRed,"--wget and --windows")
             quit(QuitFailure)
 
+        ## Check required dependencies
+        var missingDeps: seq[string]
+        if findExe("socat") == "":
+            missingDeps.add("socat")
+        if findExe("openssl") == "":
+            missingDeps.add("openssl")
+        if gitar and findExe("gitar") == "":
+            missingDeps.add("gitar (https://github.com/ariary/gitar)")
+        if bore and findExe("bore") == "":
+            missingDeps.add("bore")
+        if ngrok and findExe("ngrok") == "":
+            missingDeps.add("ngrok")
+
+        if missingDeps.len > 0:
+            styledEcho(fgRed,"Missing dependencies: ",fgDefault, missingDeps.join(", "))
+            quit(QuitFailure)
+
         ## Tmux
         if not existsEnv("TMUX"):
             styledEcho(fgRed,"[+] ",fgDefault,"Launch wrap in tmux session")
             quit(QuitFailure)
         else:
-            styledEcho(fgYellow,"[+] ",fgDefault,"Tmux is running 😋")
+            styledEcho(fgYellow,"[+] ",fgDefault,"Tmux is running")
 
         var binary: string
         var script: string
@@ -259,10 +276,15 @@ proc Wrap(
 
         ## Socat listener
         if windows:
-            echo fmt"(🪟) {remoteCmd}"
+            echo fmt"(W) {remoteCmd}"
+            styledEcho(fgYellow,"\n[cleanup] ",fgDefault,fmt"del .\\{binary}")
             discard execShellCmd(fmt"socat OPENSSL-LISTEN:{lport},cert=server.pem,verify=0,reuseaddr,fork EXEC:{getCurrentDir()}/{script},pty")
         else:
-            echo fmt"(🐧) {remoteCmd}"
+            echo fmt"(L) {remoteCmd}"
+            if tmp:
+                styledEcho(fgYellow,"\n[cleanup] ",fgDefault,"rm -rf /tmp/tacos")
+            else:
+                styledEcho(fgYellow,"\n[cleanup] ",fgDefault,fmt"rm -f ./{binary}")
             discard execShellCmd(fmt"socat OPENSSL-LISTEN:{lport},cert=server.pem,verify=0,reuseaddr,fork EXEC:{script},pty,raw,echo=0")
         cleanUp()
     except EKeyboardInterrupt:

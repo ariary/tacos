@@ -71,7 +71,7 @@ then
     then
         ./socat-listener-behind-tunneling.sh --tmp
     else
-        ./socat-listener-behind-tunneling.sh --tmp
+        ./socat-listener-behind-tunneling.sh
     fi
 elif [[ "$BORE" ]];
 then
@@ -79,7 +79,7 @@ then
     then
         ./socat-listener-behind-tunneling.sh --bore --tmp
     else
-        ./socat-listener-behind-tunneling.sh --bore --tmp
+        ./socat-listener-behind-tunneling.sh --bore
     fi
 else
     ./socat-listener.sh --lhost $1 --lport $2 --gitar
